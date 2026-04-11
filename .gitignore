@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+
+# Logs
+logs/
+*.log
+
+# Static files
+staticfiles/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
