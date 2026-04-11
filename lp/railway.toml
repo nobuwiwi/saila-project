@@ -1,6 +1,6 @@
 [build]
-builder = "STATIC"
-publishDirectory = "."
+builder = "NIXPACKS"
 
 [deploy]
-startCommand = ""
+# Nixpacks automatically detects index.html and serves it via Caddy.
+# No custom startCommand is needed.
