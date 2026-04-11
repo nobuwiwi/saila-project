@@ -1,0 +1,261 @@
+/* Custom Properties */
+:root {
+  --color-bg-white: #ffffff;
+  --color-bg-gray: #f7f7f8;
+  --color-text-dark: #111111;
+  --color-text-muted: #555555;
+  --color-brand: #6366f1;
+  --color-border: #e5e7eb;
+}
+
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans JP', sans-serif;
+  color: var(--color-text-dark);
+  background-color: var(--color-bg-white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+li {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Typography */
+h1, h2, h3 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h1 {
+  font-size: clamp(28px, 5vw, 42px);
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-size: clamp(24px, 4vw, 32px);
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+h3 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+p {
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+
+/* Layout */
+.container {
+  width: 100%;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+section {
+  padding: 96px 0;
+}
+
+/* Navigation */
+nav {
+  padding: 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-primary {
+  background-color: var(--color-brand);
+  color: #fff;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 120px 0;
+}
+
+.hero p {
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto 32px;
+}
+
+/* Problem Section */
+.problem {
+  background-color: var(--color-bg-gray);
+}
+
+.problem-content {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.problem-list {
+  border-left: 2px solid var(--color-border);
+  padding-left: 24px;
+  margin-top: 32px;
+}
+
+.problem-list li {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.problem-list li h3 {
+  color: var(--color-text-dark);
+}
+
+/* Features Section */
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.feature-item {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 48px;
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+}
+
+/* Pricing Section */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pricing-card {
+  padding: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-white);
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card.pro {
+  border: 2px solid var(--color-brand);
+}
+
+.price {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  margin: 24px 0 32px;
+}
+
+.price span {
+  font-size: 16px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.pricing-features {
+  margin-bottom: 32px;
+  flex-grow: 1;
+}
+
+.pricing-features li {
+  margin-bottom: 16px;
+  color: var(--color-text-muted);
+  position: relative;
+  padding-left: 20px;
+}
+
+.pricing-features li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--color-text-muted);
+}
+
+.pricing-card .btn {
+  width: 100%;
+}
+
+/* CTA Section */
+.cta {
+  background-color: var(--color-bg-gray);
+  text-align: center;
+}
+
+/* Footer */
+footer {
+  padding: 48px 0;
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+footer p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Animations */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
