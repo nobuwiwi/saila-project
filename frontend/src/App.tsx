@@ -1,46 +1,37 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
+import { WorkspacePage } from './features/workspaces/WorkspacePage';
 import { PrivateRoute } from './components/PrivateRoute';
 import { useAuthStore } from './store/authStore';
 
-const Dashboard = () => {
-  const logout = useAuthStore(state => state.logout);
-  const user = useAuthStore(state => state.user);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  }
-
-  return (
-    <div className="min-h-screen bg-[#f7f7f8] p-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8 border border-gray-100">
-        <h1 className="text-2xl font-bold text-gray-900">ログイン成功</h1>
-        <p className="mt-4 text-gray-600">ようこそ、{user?.display_name || user?.email} さん</p>
-        <button 
-          onClick={handleLogout}
-          className="mt-6 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#6366f1]"
-        >
-          ログアウト
-        </button>
-      </div>
-    </div>
-  );
-};
+// /workspaces/{id}/cards の仮ページ（次のSTEPで実装）
+const CardsPage = () => (
+  <div className="min-h-screen bg-[#f7f7f8] flex items-center justify-center">
+    <p className="text-gray-500 text-sm">名刺一覧（次のSTEPで実装）</p>
+  </div>
+);
 
 function App() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+      {/* 未認証 → /login、認証済み → /workspaces */}
+      <Route
+        path="/"
+        element={isAuthenticated ? <Navigate to="/workspaces" replace /> : <Navigate to="/login" replace />}
+      />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      
+
+      {/* 旧 /dashboard → /workspaces にリダイレクト */}
+      <Route path="/dashboard" element={<Navigate to="/workspaces" replace />} />
+
+      {/* 認証必須ルート */}
       <Route element={<PrivateRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/workspaces" element={<WorkspacePage />} />
+        <Route path="/workspaces/:workspaceId/cards" element={<CardsPage />} />
       </Route>
     </Routes>
   );
