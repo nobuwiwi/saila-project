@@ -1,148 +1,349 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saila - 複数の活動に対応する名刺管理インフラ</title>
-    <meta name="description" content="本業・副業・フリーランスなど、複数のプロフェッショナルな活動で受け取った名刺を、コンテキストごとに完全に分離して管理できるSaaS。">
-    
-    <!-- OGP Tags -->
-    <meta property="og:title" content="Saila - 活動ごとに名刺を分けるSaaS">
-    <meta property="og:description" content="複数の活動で受け取った名刺をコンテキストごとに完全分離して管理できる名刺管理SaaS。">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://saila.jp/">
-    <meta property="og:image" content="https://saila.jp/assets/images/ogp.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-
-    <!-- Fonts: Inter & Noto Sans JP -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saila｜副業・複業のための名刺管理サービス</title>
+  <meta name="description" content="本業・副業・個人活動で受け取った名刺を活動ごとに仕分けて管理できる名刺管理サービス。AI自動読み取り対応。30日間無料トライアル。" />
+  <meta property="og:title" content="Saila｜副業・複業のための名刺管理サービス" />
+  <meta property="og:description" content="本業・副業・個人活動で受け取った名刺を、活動ごとに仕分けて管理。AI自動読み取り対応。" />
+  <meta property="og:image" content="https://saila.link/og-image.jpg" />
+  <meta property="og:url" content="https://saila.link" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-    <nav>
-        <div class="container">
-            <div class="logo">Saila</div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero fade-in">
-        <div class="container">
-            <div class="hero-inner">
-                <div class="hero-content">
-                    <h1>活動ごとに名刺を管理。<br>文脈を活かす、<br>新しい人脈づくり。</h1>
-                    <p class="lead-text">本業、副業、個人プロジェクト。複数の顔を持つプロフェッショナルのために、受け取った名刺をワークスペースごとに完全に分離・構造化する名刺管理プラットフォームです。</p>
-                    <a href="/register" class="btn btn-primary">無料で試してみる</a>
-                </div>
-                <div class="hero-image">
-                    <img src="assets/images/hero.png" alt="Saila 名刺読み取りの画面イメージ">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Social Proof / Trust -->
-    <div class="trust fade-in">
-        <div class="container">
-            <p>現代の多様な働き方をサポート</p>
-            <div class="trust-logos">
-                <span>Freelancers</span>
-                <span>Side Workers</span>
-                <span>Entrepreneurs</span>
-            </div>
-        </div>
+  <header class="nav">
+    <div class="nav__inner container">
+      <a href="/" class="nav__logo">Saila</a>
+      <nav class="nav__links">
+        <a href="https://app.saila.link/" class="nav__login">ログイン</a>
+        <a href="https://app.saila.link/" class="btn btn--primary btn--sm">無料で始める</a>
+      </nav>
     </div>
+  </header>
 
-    <!-- Feature Split Section -->
-    <section class="features">
-        <div class="container">
-            <!-- Feature 1 -->
-            <div class="feature-split fade-in">
-                <div class="feature-text">
-                    <h2>「誰に、どの活動で会ったか」を<br>もう見失わない</h2>
-                    <p>既存の名刺管理サービスでは、すべての名刺が1つのデータベースに混在してしまいます。Sailaなら「本業」「副業A」などのワークスペースを無制限に作成可能。コンテキストを維持したまま人脈を構築できます。</p>
-                </div>
-                <div class="feature-image">
-                    <img src="assets/images/workspace.png" alt="ワークスペースの分離イメージ">
-                </div>
+  <main>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <span class="label fade-in">副業・複業・フリーランスの名刺管理</span>
+          <h1 class="hero__title fade-in">受け取った名刺を、<br>活動ごとに整理する。</h1>
+          <p class="hero__sub fade-in">
+            本業・副業・個人活動で受け取った名刺が、<br>
+            ひとつのリストに混在していませんか？<br>
+            Sailaは活動単位で名刺を完全に仕分けて管理できる、<br>
+            副業・複業時代のための名刺管理サービスです。
+          </p>
+          <div class="hero__cta fade-in">
+            <a href="https://app.saila.link/" class="btn btn--primary">無料で始める（30日間）</a>
+            <a href="#features" class="btn btn--ghost">機能を見る</a>
+          </div>
+        </div>
+
+        <div class="hero__visual fade-in">
+          <div class="mockup">
+            <div class="mockup__titlebar">
+              <span class="mockup__dot"></span>
+              <span class="mockup__dot"></span>
+              <span class="mockup__dot"></span>
+              <span class="mockup__appname">Saila</span>
             </div>
-        </div>
-    </section>
-
-    <!-- Detailed Value Props Grid -->
-    <section class="value-props">
-        <div class="container">
-            <h2 class="fade-in">名刺を、ビジネスの確かな資産へ</h2>
-            <div class="grid">
-                <div class="card fade-in">
-                    <div class="card-icon">1</div>
-                    <h3>スマートな自動データ化</h3>
-                    <p>スマートフォンから名刺をアップロードするだけで、画像解析によって社名、役職、連絡先を正確に構造化データとして抽出。手入力のコストを大幅に削減します。</p>
-                </div>
-                <div class="card fade-in">
-                    <div class="card-icon">2</div>
-                    <h3>テーブル形式のUI</h3>
-                    <p>ビジネスに適した高機能なテーブルUIを採用。顧客リストや営業リストへの転用が容易で、必要な情報を素早く検索・閲覧・編集することが可能です。</p>
-                </div>
-                <div class="card fade-in">
-                    <div class="card-icon">3</div>
-                    <h3>プロのための確実な保存</h3>
-                    <p>誤削除を防ぐための論理削除機能とゴミ箱を標準装備。名刺の管理という重要なインフラとして、データの確実な保全と堅牢性を重視した設計です。</p>
-                </div>
+            <div class="mockup__tabs">
+              <span class="mockup__tab mockup__tab--active">本業</span>
+              <span class="mockup__tab">副業 A</span>
+              <span class="mockup__tab">個人活動</span>
+              <span class="mockup__tab mockup__tab--add">+ 追加</span>
             </div>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section class="pricing fade-in">
-        <div class="container">
-            <h2>料金プラン</h2>
-            <div class="pricing-grid">
-                <div class="pricing-card">
-                    <h3>Basic</h3>
-                    <p>Sailaの機能を試したい方へ</p>
-                    <div class="price">¥0<span> / 月</span></div>
-                    <ul class="pricing-features">
-                        <li>ワークスペース: 最大2つ</li>
-                        <li>登録枚数: 累計50枚まで</li>
-                        <li>名刺読み取り: 表面のみ</li>
-                    </ul>
-                    <a href="/register" class="btn">今すぐ始める</a>
-                </div>
-                <div class="pricing-card pro">
-                    <h3>Professional</h3>
-                    <p>本格的に人脈を管理・活用する方へ</p>
-                    <div class="price">¥980<span> / 月</span></div>
-                    <ul class="pricing-features">
-                        <li>ワークスペース: 無制限</li>
-                        <li>登録枚数: 無制限</li>
-                        <li>名刺読み取り: 表裏両面</li>
-                        <li>優先的なカスタマーサポート</li>
-                    </ul>
-                    <a href="/register" class="btn btn-primary">30日間の無料トライアル</a>
-                </div>
+            <div class="mockup__table">
+              <div class="mockup__thead">
+                <span class="mockup__th mockup__th--avatar"></span>
+                <span class="mockup__th">氏名</span>
+                <span class="mockup__th">会社名</span>
+                <span class="mockup__th mockup__th--hide">役職</span>
+              </div>
+              <div class="mockup__row">
+                <span class="mockup__avatar" style="background:#dbeafe;color:#3b82f6;">山</span>
+                <span class="mockup__cell">山田 太郎</span>
+                <span class="mockup__cell mockup__cell--muted">株式会社〇〇</span>
+                <span class="mockup__cell mockup__cell--muted mockup__cell--hide">営業部長</span>
+              </div>
+              <div class="mockup__row mockup__row--active">
+                <span class="mockup__avatar" style="background:#dcfce7;color:#16a34a;">鈴</span>
+                <span class="mockup__cell">鈴木 花子</span>
+                <span class="mockup__cell mockup__cell--muted">△△テクノロジー</span>
+                <span class="mockup__cell mockup__cell--muted mockup__cell--hide">エンジニア</span>
+              </div>
+              <div class="mockup__row">
+                <span class="mockup__avatar" style="background:#fef3c7;color:#d97706;">佐</span>
+                <span class="mockup__cell">佐藤 健一</span>
+                <span class="mockup__cell mockup__cell--muted">□□コンサルティング</span>
+                <span class="mockup__cell mockup__cell--muted mockup__cell--hide">マネージャー</span>
+              </div>
+              <div class="mockup__row">
+                <span class="mockup__avatar" style="background:#fce7f3;color:#db2777;">田</span>
+                <span class="mockup__cell">田中 美咲</span>
+                <span class="mockup__cell mockup__cell--muted">◇◇デザイン</span>
+                <span class="mockup__cell mockup__cell--muted mockup__cell--hide">ディレクター</span>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta fade-in">
-        <div class="container">
-            <h2>複数の名刺入れを、1つのプラットフォームへ。</h2>
-            <p>フリートライアル期間として、登録日から30日間はProfessionalプランの全機能を無制限でご利用いただけます。</p>
-            <a href="/register" class="btn btn-primary">無料で試してみる</a>
+    <!-- Problem -->
+    <section class="problem">
+      <div class="container problem__inner">
+        <h2 class="section-title fade-in">名刺管理アプリの、見落とされてきた課題</h2>
+        <p class="problem__text fade-in">
+          既存の名刺管理サービスは、受け取った名刺を1つのデータベースにまとめて保存します。<br>
+          本業・副業・プライベートで受け取った名刺が混在し、<br>
+          「この人は副業のつながり」「この人は本業で会った」という<br>
+          文脈（コンテキスト）が失われてしまいます。<br>
+          タグや検索で対応しようとしても、名刺が増えるほど管理が追いつかなくなります。
+        </p>
+        <div class="problem__compare fade-in">
+          <div class="compare-box compare-box--before">
+            <div class="compare-box__label">従来のサービス</div>
+            <div class="compare-box__cards">
+              <div class="ccard ccard--gray">本業 / 山田 太郎</div>
+              <div class="ccard ccard--gray">副業A / 鈴木 花子</div>
+              <div class="ccard ccard--gray">本業 / 佐藤 健一</div>
+              <div class="ccard ccard--gray">個人 / 田中 美咲</div>
+              <div class="ccard ccard--gray">副業B / 伊藤 誠</div>
+            </div>
+            <div class="compare-box__caption">すべてが混在した1つのリスト</div>
+          </div>
+          <div class="compare-arrow">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 10h12M11 5l5 5-5 5" stroke="#999" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="compare-box compare-box--after">
+            <div class="compare-box__label compare-box__label--brand">Saila</div>
+            <div class="compare-box__workspaces">
+              <div class="ws-group">
+                <div class="ws-group__title">本業</div>
+                <div class="ccard ccard--blue">山田 太郎</div>
+                <div class="ccard ccard--blue">佐藤 健一</div>
+              </div>
+              <div class="ws-group">
+                <div class="ws-group__title">副業 A</div>
+                <div class="ccard ccard--green">鈴木 花子</div>
+                <div class="ccard ccard--green">伊藤 誠</div>
+              </div>
+              <div class="ws-group">
+                <div class="ws-group__title">個人活動</div>
+                <div class="ccard ccard--amber">田中 美咲</div>
+              </div>
+            </div>
+            <div class="compare-box__caption">活動ごとに完全分離</div>
+          </div>
         </div>
+      </div>
     </section>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Saila Inc. All Rights Reserved.</p>
-        </div>
-    </footer>
+    <!-- Features -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="features__list">
 
-    <script src="js/main.js"></script>
+          <div class="feature-item fade-in">
+            <div class="feature-item__meta">
+              <div class="feature-item__icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="7" height="7" rx="1.5" stroke="#6366f1" stroke-width="1.5" />
+                  <rect x="10" y="1" width="7" height="7" rx="1.5" stroke="#6366f1" stroke-width="1.5" />
+                  <rect x="1" y="10" width="7" height="7" rx="1.5" stroke="#6366f1" stroke-width="1.5"
+                    stroke-opacity="0.4" />
+                  <rect x="10" y="10" width="7" height="7" rx="1.5" stroke="#6366f1" stroke-width="1.5"
+                    stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="feature-item__label">活動ごとの仕分け</div>
+            </div>
+            <div class="feature-item__body">
+              <div class="feature-item__text">
+                <h3 class="feature-item__title">本業・副業・個人活動を、最初から分けて管理</h3>
+                <p class="feature-item__desc">
+                  ワークスペースという単位で名刺を完全に分離します。本業で会った人と副業で会った人が混在することはありません。活動が増えても、ワークスペースを追加するだけです。</p>
+              </div>
+              <div class="feature-item__visual">
+                <div class="fv-workspace">
+                  <div class="fv-ws-tab fv-ws-tab--active">
+                    <span class="fv-ws-dot" style="background:#6366f1;"></span>本業
+                  </div>
+                  <div class="fv-ws-tab">
+                    <span class="fv-ws-dot" style="background:#22c55e;"></span>副業 A
+                  </div>
+                  <div class="fv-ws-tab">
+                    <span class="fv-ws-dot" style="background:#f59e0b;"></span>個人活動
+                  </div>
+                  <div class="fv-ws-add">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-item fade-in">
+            <div class="feature-item__meta">
+              <div class="feature-item__icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="4" width="16" height="11" rx="1.5" stroke="#6366f1" stroke-width="1.5" />
+                  <path d="M6 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" stroke="#6366f1" stroke-width="1.5"
+                    stroke-linecap="round" />
+                  <circle cx="9" cy="9.5" r="2" stroke="#6366f1" stroke-width="1.5" />
+                  <path d="M5.5 14.5a3.5 3.5 0 0 1 7 0" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"
+                    stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="feature-item__label">AI自動入力</div>
+            </div>
+            <div class="feature-item__body">
+              <div class="feature-item__text">
+                <h3 class="feature-item__title">撮影するだけで、名刺の情報を自動で読み取る</h3>
+                <p class="feature-item__desc">名刺の写真をアップロードするだけで、会社名・氏名・役職・連絡先を自動で抽出します。手入力の手間なく、すぐに管理を始められます。</p>
+              </div>
+              <div class="feature-item__visual">
+                <div class="fv-scan">
+                  <div class="fv-card">
+                    <div class="fv-card__line fv-card__line--name"></div>
+                    <div class="fv-card__line fv-card__line--company"></div>
+                    <div class="fv-card__line fv-card__line--role"></div>
+                  </div>
+                  <svg class="fv-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                  <div class="fv-extracted">
+                    <div class="fv-extracted__row"><span class="fv-extracted__key">氏名</span><span
+                        class="fv-extracted__val">山田 太郎</span></div>
+                    <div class="fv-extracted__row"><span class="fv-extracted__key">会社</span><span
+                        class="fv-extracted__val">株式会社〇〇</span></div>
+                    <div class="fv-extracted__row"><span class="fv-extracted__key">役職</span><span
+                        class="fv-extracted__val">営業部長</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-item fade-in">
+            <div class="feature-item__meta">
+              <div class="feature-item__icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="16" height="16" rx="1.5" stroke="#6366f1" stroke-width="1.5" />
+                  <line x1="1" y1="5.5" x2="17" y2="5.5" stroke="#6366f1" stroke-width="1.5" />
+                  <line x1="1" y1="9.5" x2="17" y2="9.5" stroke="#6366f1" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="1" y1="13.5" x2="17" y2="13.5" stroke="#6366f1" stroke-width="1" stroke-opacity="0.4" />
+                  <line x1="6" y1="1" x2="6" y2="17" stroke="#6366f1" stroke-width="1" stroke-opacity="0.4" />
+                </svg>
+              </div>
+              <div class="feature-item__label">シンプルな一覧管理</div>
+            </div>
+            <div class="feature-item__body">
+              <div class="feature-item__text">
+                <h3 class="feature-item__title">スプレッドシートのように、直接編集できる</h3>
+                <p class="feature-item__desc">登録した名刺はテーブル形式で一覧表示されます。セルをクリックするだけで直接編集でき、サムネイル画像にカーソルを合わせると名刺を拡大確認できます。
+                </p>
+              </div>
+              <div class="feature-item__visual">
+                <div class="fv-table">
+                  <div class="fv-table__head">
+                    <span>氏名</span><span>会社名</span><span>役職</span>
+                  </div>
+                  <div class="fv-table__row">
+                    <span>山田 太郎</span><span>株式会社〇〇</span><span>営業部長</span>
+                  </div>
+                  <div class="fv-table__row fv-table__row--editing">
+                    <span class="fv-table__editing-cell">鈴木 花子<span
+                        class="fv-cursor">|</span></span><span>△△テクノロジー</span><span>エンジニア</span>
+                  </div>
+                  <div class="fv-table__row">
+                    <span>佐藤 健一</span><span>□□コンサル</span><span>—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing" id="pricing">
+      <div class="container">
+        <h2 class="section-title section-title--center fade-in">料金プラン</h2>
+        <div class="pricing__grid">
+
+          <div class="pricing-card fade-in">
+            <div class="pricing-card__name">無料プラン</div>
+            <div class="pricing-card__price">¥0 <span class="pricing-card__per">/ 月</span></div>
+            <p class="pricing-card__desc">まずは試してみたい方に。</p>
+            <ul class="pricing-card__list">
+              <li class="pricing-card__item pricing-card__item--check">ワークスペース 2つまで</li>
+              <li class="pricing-card__item pricing-card__item--check">名刺の累計登録 50枚まで</li>
+              <li class="pricing-card__item pricing-card__item--check">名刺表面のAI読み取り</li>
+              <li class="pricing-card__item pricing-card__item--check">テーブル形式の一覧・直接編集</li>
+              <li class="pricing-card__item pricing-card__item--disabled">名刺裏面の読み取り</li>
+              <li class="pricing-card__item pricing-card__item--disabled">登録枚数の上限なし</li>
+            </ul>
+            <a href="https://app.saila.link/" class="btn btn--ghost btn--full">無料で始める</a>
+          </div>
+
+          <div class="pricing-card pricing-card--pro fade-in">
+            <div class="pricing-card__badge">最初の30日間は全機能無料</div>
+            <div class="pricing-card__name">Proプラン</div>
+            <div class="pricing-card__price">¥980 <span class="pricing-card__per">/ 月</span></div>
+            <p class="pricing-card__desc">名刺が増えてきた方、活動が複数ある方に。</p>
+            <ul class="pricing-card__list">
+              <li class="pricing-card__item pricing-card__item--check">ワークスペース無制限</li>
+              <li class="pricing-card__item pricing-card__item--check">名刺の累計登録 無制限</li>
+              <li class="pricing-card__item pricing-card__item--check">名刺表面のAI読み取り</li>
+              <li class="pricing-card__item pricing-card__item--check">テーブル形式の一覧・直接編集</li>
+              <li class="pricing-card__item pricing-card__item--check">名刺裏面の読み取り</li>
+              <li class="pricing-card__item pricing-card__item--check">今後追加されるすべての機能</li>
+            </ul>
+            <a href="https://app.saila.link/" class="btn btn--primary btn--full">30日間無料で試す</a>
+          </div>
+
+        </div>
+        <p class="pricing__note fade-in">※ トライアル期間中はProプランの全機能をご利用いただけます。終了後は自動的に無料プランへ移行します。</p>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container cta-section__inner">
+        <h2 class="cta-section__title fade-in">まず、使ってみてください。</h2>
+        <p class="cta-section__sub fade-in">Googleアカウントで、今すぐ始められます。</p>
+        <a href="https://app.saila.link/" class="btn btn--primary fade-in">無料で始める（30日間）</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span class="footer__logo">Saila</span>
+      <span class="footer__copy">© 2025 Saila. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <script src="main.js"></script>
 </body>
+
 </html>

@@ -1,6 +1,3 @@
 [build]
-builder = "NIXPACKS"
-
-[deploy]
-# Nixpacks automatically detects index.html and serves it via Caddy.
-# No custom startCommand is needed.
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
