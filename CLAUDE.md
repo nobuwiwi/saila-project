@@ -69,7 +69,9 @@ saila/
 │   ├── Dockerfile               # Railway本番用
 │   ├── Dockerfile.dev           # ローカル開発用
 │   ├── Procfile                 # Railway起動コマンド
-│   └── railway.toml             # Railwayビルド設定
+│   ├── railway.toml             # Railwayビルド設定
+│   ├── .python-version          # Nixpacks Pythonバージョン指定
+│   └── requirements.txt         # Nixpacks Python判定用
 ├── frontend/
 │   ├── src/
 │   │   ├── api/                 # Axiosクライアント・API関数
@@ -384,11 +386,10 @@ SENTRY_DSN=
 ### Railway デプロイ設定（LP用）
 ```toml
 [build]
-builder = "STATIC"
-publishDirectory = "."
+builder = "NIXPACKS"
 
 [deploy]
-startCommand = ""
+# Nixpacks automatically detects index.html and serves it via Caddy.
 ```
 
 ---
@@ -398,8 +399,8 @@ startCommand = ""
 **ルール：1ステップ完了 → Railwayにデプロイして確認 → 次のステップへ**
 
 ### フェーズ1：土台
-- **[ ] STEP 1** Django Hello World + `/api/health/` → Railwayで疎通確認
-- **[ ] STEP 2** LP（`lp/index.html`）→ Railwayで表示確認
+- **[x] STEP 1** Django Hello World + `/api/health/` → Railwayで疎通確認
+- **[x] STEP 2** LP（`lp/index.html`）→ Railwayで表示確認
 
 ### フェーズ2：認証
 - **[ ] STEP 3** メール＋パスワード認証バックエンド（register・login・me・token/refresh）→ curlで確認
@@ -426,7 +427,7 @@ startCommand = ""
 Railwayプロジェクト「saila」
 ├── backend    （Djangoアプリ・gunicorn）
 ├── frontend   （Reactアプリ・静的配信）
-├── lp         （静的HTML・STATIC builder）
+├── lp         （静的HTML・Nixpacks内蔵Caddy配信）
 ├── db         （PostgreSQL・Railway managed）
 └── redis      （Redis・Railway managed）
 ```
