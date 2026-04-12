@@ -1,6 +1,7 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse, HttpResponse
+from rest_framework_simplejwt.views import TokenRefreshView
 
 def health_check(request):
     return JsonResponse({"status": "ok"})
@@ -11,5 +12,7 @@ def home(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/health/', health_check),
+    path('api/accounts/', include('apps.accounts.urls')),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', home),
 ]
