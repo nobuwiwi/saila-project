@@ -7,6 +7,7 @@ export interface User {
   trial_started_at: string;
   created_at: string;
   updated_at: string;
+  can_add_card?: boolean;
 }
 
 // ==================== Workspace ====================

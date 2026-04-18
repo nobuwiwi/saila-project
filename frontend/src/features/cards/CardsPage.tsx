@@ -34,6 +34,13 @@ export function CardsPage() {
     queryKey: ['cards', selectedWorkspace?.id],
     queryFn: () => cardsApi.getCards(selectedWorkspace?.id),
     enabled: !!selectedWorkspace,
+    refetchInterval: (query) => {
+      const data = query.state?.data;
+      if (Array.isArray(data)) {
+        return data.some(c => c.analysis_status === 'pending' || c.analysis_status === 'processing') ? 3000 : false;
+      }
+      return false;
+    }
   });
 
   const updateMutation = useMutation({

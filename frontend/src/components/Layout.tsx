@@ -5,6 +5,7 @@ import { workspacesApi } from '../api/workspaces';
 import { useAuthStore } from '../store/authStore';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import { WorkspaceModal } from '../features/workspaces/WorkspaceModal';
+import { CardUploadModal } from '../features/cards/CardUploadModal';
 import type { Workspace, WorkspaceCreateInput } from '../types';
 
 // ========== サイドバー内の各ワークスペース項目 ==========
@@ -105,6 +106,7 @@ export function Layout() {
   } = useWorkspaceStore();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -268,6 +270,7 @@ export function Layout() {
           {!isTrash && currentWs && (
             <button
               id="add-card-btn"
+              onClick={() => setUploadModalOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#6366f1] text-white
                          text-[13px] font-medium rounded-md hover:bg-[#5254cc] active:bg-[#4748b8]
                          transition-colors focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:ring-offset-2"
@@ -292,6 +295,15 @@ export function Layout() {
         workspace={editingWorkspace}
         isLoading={isSubmitting}
       />
+
+      {/* 名刺アップロードモーダル */}
+      {currentWs && (
+        <CardUploadModal
+          isOpen={uploadModalOpen}
+          onClose={() => setUploadModalOpen(false)}
+          workspace={currentWs}
+        />
+      )}
     </div>
   );
 }

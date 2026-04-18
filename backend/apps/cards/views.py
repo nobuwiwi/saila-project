@@ -48,7 +48,39 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import NotFound
             raise NotFound()
 
-        serializer.save(owner=user, workspace=workspace)
+        image_obj = self.request.data.get('image')
+        thumbnail_content = None
+        thumb_filename = None
+        if image_obj:
+            try:
+                from PIL import Image, ImageOps
+                from io import BytesIO
+                from django.core.files.base import ContentFile
+
+                img = Image.open(image_obj)
+                img = ImageOps.exif_transpose(img)
+                # Convert to RGB (in case of PNG with transparency / HEIC)
+                if img.mode in ('RGBA', 'P'):
+                    img = img.convert('RGB')
+                
+                img.thumbnail((200, 120), Image.Resampling.LANCZOS)
+                
+                thumb_io = BytesIO()
+                img.save(thumb_io, format='JPEG', quality=85)
+                # Use original name with .jpg
+                try:
+                    name_base = image_obj.name.rsplit('.', 1)[0]
+                except AttributeError:
+                    name_base = 'uploaded'
+                thumb_filename = f"thumb_{name_base}.jpg"
+                thumbnail_content = ContentFile(thumb_io.getvalue(), name=thumb_filename)
+            except Exception as e:
+                pass
+
+        card = serializer.save(owner=user, workspace=workspace, analysis_status='pending')
+        if thumbnail_content and thumb_filename:
+            card.thumbnail.save(thumb_filename, thumbnail_content, save=True)
+
 
     def destroy(self, request, *args, **kwargs):
         """論理削除（deleted_at をセット）"""

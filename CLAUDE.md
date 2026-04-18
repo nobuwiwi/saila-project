@@ -460,10 +460,10 @@ startCommand = ""
 - **[x] STEP 6** Layout（サイドバー常時表示・ワークスペース切り替え）✅
 - **[x] STEP 7** 名刺モデル + CRUD API ✅
 - **[x] STEP 8** 名刺テーブルUI（直接編集・サムネイル・ホバープレビュー）✅
-- **[ ] STEP 9** 名刺アップロードUI（ドラッグ&ドロップ）← 次
+- **[x] STEP 9** 名刺アップロードUI（ドラッグ&ドロップ）✅
 
 ### フェーズ4：AI機能
-- **[ ] STEP 10** AI解析（Vision API → Gemini/OpenAI）+ Celery + Redis
+- **[ ] STEP 10** AI解析（Vision API → Gemini/OpenAI）+ Celery + Redis ← 次
 
 ### フェーズ5：運用
 - **[ ] STEP 11** `purge_deleted_cards` コマンド（7日経過分の物理削除）

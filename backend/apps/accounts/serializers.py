@@ -5,10 +5,16 @@ from django.contrib.auth import authenticate
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    can_add_card = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at')
-        read_only_fields = ('id', 'email', 'trial_started_at', 'created_at')
+        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at', 'can_add_card')
+        read_only_fields = ('id', 'email', 'trial_started_at', 'created_at', 'can_add_card')
+
+    def get_can_add_card(self, obj):
+        return obj.can_add_card()
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
