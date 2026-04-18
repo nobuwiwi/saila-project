@@ -48,9 +48,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return delta.days <= 30
 
     def total_card_count(self):
-        # To be implemented when BusinessCard model exists.
-        # Required by Business Logic.
-        return getattr(self, 'businesscard_set').count() if hasattr(self, 'businesscard_set') else 0
+        """生涯累計登録枚数（論理削除済みも含む）"""
+        from apps.cards.models import BusinessCard
+        return BusinessCard.all_objects.filter(owner=self).count()
 
     def can_add_card(self):
         if self.is_trial_active():

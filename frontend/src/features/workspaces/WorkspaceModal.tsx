@@ -32,8 +32,11 @@ export function WorkspaceModal({
 
   useEffect(() => {
     if (workspace) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(workspace.name);
+       
       setDescription(workspace.description);
+       
       setColor(workspace.color);
     } else {
       setName('');

@@ -37,3 +37,32 @@ export interface WorkspaceUpdateInput {
   color?: string;
   sort_order?: number;
 }
+
+// ==================== Business Card ====================
+export interface ParsedData {
+  company_name?: string;
+  full_name?: string;
+  title?: string;
+  email?: string;
+  phone?: string;
+  mobile?: string;
+  address?: string;
+  website?: string;
+  department?: string;
+  notes?: string;
+}
+
+export interface BusinessCard {
+  id: string;
+  workspace: string; // workspace ID
+  owner: string; // user ID
+  image: string | null;
+  thumbnail: string | null;
+  analysis_status: 'pending' | 'processing' | 'done' | 'failed';
+  parsed_data: ParsedData | null;
+  raw_ocr_text: string;
+  memo: string;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
