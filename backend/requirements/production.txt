@@ -7,3 +7,8 @@ psycopg2-binary
 dj-database-url
 django-cors-headers
 Pillow
+celery
+redis
+google-cloud-vision
+google-generativeai
+openai

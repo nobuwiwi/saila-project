@@ -81,6 +81,10 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
         if thumbnail_content and thumb_filename:
             card.thumbnail.save(thumb_filename, thumbnail_content, save=True)
 
+        # Trigger AI analysis asynchronously
+        from .tasks import analyze_card
+        analyze_card.delay(card.id)
+
 
     def destroy(self, request, *args, **kwargs):
         """論理削除（deleted_at をセット）"""
@@ -128,6 +132,10 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
         """AI解析トリガー（analysis_status を processing に変更）"""
         card = self.get_object()
         card.analysis_status = 'processing'
-        card.save(update_fields=['analysis_status'])
+        card.save(update_fields=['analysis_status', 'updated_at'])
+
+        from .tasks import analyze_card
+        analyze_card.delay(card.id)
+
         serializer = BusinessCardDetailSerializer(card, context={'request': request})
         return Response(serializer.data)
