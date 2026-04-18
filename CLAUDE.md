@@ -466,10 +466,10 @@ startCommand = ""
 - **[x] STEP 10** AI解析（Vision API → Gemini/OpenAI）+ Celery + Redis ✅
 
 ### フェーズ5：運用
-- **[ ] STEP 11** `purge_deleted_cards` コマンド（7日経過分の物理削除）← 次
+- **[x] STEP 11** `purge_deleted_cards` コマンド（7日経過分の物理削除）✅
 
 ### フェーズ6：マネタイズ
-- **[ ] STEP 12** Stripe決済連携（Proプラン）
+- **[ ] STEP 12** Stripe決済連携（Proプラン）← 次
 
 ---
 
