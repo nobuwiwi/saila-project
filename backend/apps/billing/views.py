@@ -103,16 +103,26 @@ class StripeWebhookView(APIView):
                         user.save(update_fields=['is_pro', 'stripe_customer_id', 'pro_started_at'])
                         logger.info(f"User {user.email} upgraded to Pro.")
 
-            elif event['type'] == 'customer.subscription.deleted':
+            elif event['type'] in ['customer.subscription.deleted', 'customer.subscription.updated']:
                 subscription = event['data']['object']
                 customer_id = getattr(subscription, 'customer', None)
+                status = getattr(subscription, 'status', None)
+                cancel_at_period_end = getattr(subscription, 'cancel_at_period_end', False)
+                
                 if customer_id:
                     from apps.accounts.models import User
                     user = User.objects.filter(stripe_customer_id=customer_id).first()
                     if user:
-                        user.is_pro = False
-                        user.save(update_fields=['is_pro'])
-                        logger.info(f"User {user.email} subscription deleted.")
+                        if event['type'] == 'customer.subscription.deleted' or status in ['canceled', 'unpaid', 'past_due'] or cancel_at_period_end:
+                            user.is_pro = False
+                            user.save(update_fields=['is_pro'])
+                            logger.info(f"User {user.email} subscription downgraded / deleted.")
+                        elif status in ['active', 'trialing'] and not cancel_at_period_end:
+                            # Update to true just in case they renewed
+                            if not user.is_pro:
+                                user.is_pro = True
+                                user.save(update_fields=['is_pro'])
+                                logger.info(f"User {user.email} subscription renewed.")
 
             return Response(status=200)
 
