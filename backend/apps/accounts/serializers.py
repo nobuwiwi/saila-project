@@ -48,3 +48,19 @@ class LoginSerializer(serializers.Serializer):
             
         data['user'] = user
         return data
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("現在のパスワードが間違っています。")
+        return value
+
+    def validate_new_password(self, value):
+        old_password = self.initial_data.get('old_password')
+        if old_password and old_password == value:
+            raise serializers.ValidationError("新しいパスワードが現在のパスワードと同じです。")
+        return value

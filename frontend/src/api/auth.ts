@@ -17,6 +17,16 @@ export const authApi = {
     return response.data;
   },
   
+  updateProfile: async (data: { display_name?: string }) => {
+    const response = await apiClient.patch('/accounts/me/', data);
+    return response.data;
+  },
+
+  changePassword: async (data: { old_password: string; new_password: string }) => {
+    const response = await apiClient.put('/accounts/change-password/', data);
+    return response.data;
+  },
+  
   logout: () => {
     useAuthStore.getState().logout();
   }

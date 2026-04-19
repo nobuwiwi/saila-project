@@ -7,6 +7,7 @@ import { useWorkspaceStore } from '../store/workspaceStore';
 import { WorkspaceModal } from '../features/workspaces/WorkspaceModal';
 import { CardUploadModal } from '../features/cards/CardUploadModal';
 import { UpgradeModal } from '../features/billing/UpgradeModal';
+import { SettingsModal } from '../features/auth/SettingsModal';
 import type { Workspace, WorkspaceCreateInput } from '../types';
 
 // ========== サイドバー内の各ワークスペース項目 ==========
@@ -109,6 +110,7 @@ export function Layout() {
   const [modalOpen, setModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [upgradeModalMessage, setUpgradeModalMessage] = useState('');
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -246,13 +248,16 @@ export function Layout() {
           </button>
 
           {/* ユーザー・ログアウト */}
-          <div className="flex items-center justify-between px-3 py-2 rounded-md">
-            <span className="text-[12px] text-gray-500 truncate max-w-[130px]">
-              {user?.display_name || user?.email}
-            </span>
+          <div className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer group" onClick={() => setSettingsModalOpen(true)}>
+            <div className="flex flex-col min-w-0 pr-2">
+               <span className="text-[12px] font-medium text-gray-700 truncate max-w-[130px]">
+                 {user?.display_name || user?.email}
+               </span>
+               <span className="text-[10px] text-gray-400 truncate max-w-[130px]">設定</span>
+            </div>
             <button
-              onClick={handleLogout}
-              className="text-[11px] text-gray-400 hover:text-gray-700 transition-colors shrink-0"
+              onClick={(e) => { e.stopPropagation(); handleLogout(); }}
+              className="text-[11px] text-gray-400 hover:text-gray-700 transition-colors shrink-0 p-1"
             >
               ログアウト
             </button>
@@ -326,6 +331,12 @@ export function Layout() {
          isOpen={upgradeModalOpen}
          onClose={() => setUpgradeModalOpen(false)}
          message={upgradeModalMessage}
+      />
+
+      {/* 設定モーダル */}
+      <SettingsModal 
+         isOpen={settingsModalOpen}
+         onClose={() => setSettingsModalOpen(false)}
       />
     </div>
   );
