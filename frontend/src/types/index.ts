@@ -11,6 +11,7 @@ export interface User {
   can_add_workspace: boolean;
   is_pro: boolean;
   is_trial_active: boolean;
+  pro_cancel_at_period_end?: boolean;
 }
 
 // ==================== Workspace ====================

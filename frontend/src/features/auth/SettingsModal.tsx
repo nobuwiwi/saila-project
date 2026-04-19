@@ -143,7 +143,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <p className="text-[13px] font-medium text-gray-900">
                   現在のプラン: {' '}
                   {user.is_pro ? (
-                    <span className="text-[#6366f1] font-semibold">Proプラン</span>
+                    user.pro_cancel_at_period_end ? (
+                      <span className="text-orange-500 font-semibold">Proプラン（解約予定）</span>
+                    ) : (
+                      <span className="text-[#6366f1] font-semibold">Proプラン</span>
+                    )
                   ) : user.is_trial_active ? (
                     <span className="text-green-600 font-semibold">無料プラン（トライアル中）</span>
                   ) : (

@@ -100,7 +100,8 @@ class StripeWebhookView(APIView):
                         user.is_pro = True
                         user.stripe_customer_id = customer_id
                         user.pro_started_at = timezone.now()
-                        user.save(update_fields=['is_pro', 'stripe_customer_id', 'pro_started_at'])
+                        user.pro_cancel_at_period_end = False
+                        user.save(update_fields=['is_pro', 'stripe_customer_id', 'pro_started_at', 'pro_cancel_at_period_end'])
                         logger.info(f"User {user.email} upgraded to Pro.")
 
             elif event['type'] in ['customer.subscription.deleted', 'customer.subscription.updated']:
@@ -113,16 +114,21 @@ class StripeWebhookView(APIView):
                     from apps.accounts.models import User
                     user = User.objects.filter(stripe_customer_id=customer_id).first()
                     if user:
-                        if event['type'] == 'customer.subscription.deleted' or status in ['canceled', 'unpaid', 'past_due'] or cancel_at_period_end:
+                        if event['type'] == 'customer.subscription.deleted' or status in ['canceled', 'unpaid', 'past_due']:
                             user.is_pro = False
-                            user.save(update_fields=['is_pro'])
+                            user.pro_cancel_at_period_end = False
+                            user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
                             logger.info(f"User {user.email} subscription downgraded / deleted.")
-                        elif status in ['active', 'trialing'] and not cancel_at_period_end:
-                            # Update to true just in case they renewed
-                            if not user.is_pro:
-                                user.is_pro = True
-                                user.save(update_fields=['is_pro'])
-                                logger.info(f"User {user.email} subscription renewed.")
+                        elif cancel_at_period_end:
+                            user.is_pro = True
+                            user.pro_cancel_at_period_end = True
+                            user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
+                            logger.info(f"User {user.email} subscription scheduled for cancellation.")
+                        elif status in ['active', 'trialing']:
+                            user.is_pro = True
+                            user.pro_cancel_at_period_end = False
+                            user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
+                            logger.info(f"User {user.email} subscription active/renewed.")
 
             return Response(status=200)
 

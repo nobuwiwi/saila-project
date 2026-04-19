@@ -33,6 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     stripe_customer_id = models.CharField(max_length=255, blank=True)
     is_pro = models.BooleanField(default=False)
     pro_started_at = models.DateTimeField(null=True, blank=True)
+    pro_cancel_at_period_end = models.BooleanField(default=False)
     
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
