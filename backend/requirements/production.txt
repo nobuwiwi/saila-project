@@ -12,3 +12,4 @@ redis
 google-cloud-vision
 google-generativeai
 openai
+stripe

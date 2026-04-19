@@ -29,6 +29,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     avatar_url = models.URLField(blank=True)
     trial_started_at = models.DateTimeField(default=timezone.now)
     
+    # Billing
+    stripe_customer_id = models.CharField(max_length=255, blank=True)
+    is_pro = models.BooleanField(default=False)
+    pro_started_at = models.DateTimeField(null=True, blank=True)
+    
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
@@ -53,6 +58,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return BusinessCard.all_objects.filter(owner=self).count()
 
     def can_add_card(self):
-        if self.is_trial_active():
+        if self.is_trial_active() or self.is_pro:
             return True
         return self.total_card_count() < 50
+
+    def can_add_workspace(self):
+        if self.is_trial_active() or self.is_pro:
+            return True
+        from apps.workspaces.models import Workspace
+        return Workspace.objects.filter(owner=self).count() < 2

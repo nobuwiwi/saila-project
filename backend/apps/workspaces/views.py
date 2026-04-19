@@ -19,6 +19,13 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         user = self.request.user
+
+        if not user.can_add_workspace():
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied(
+                detail='ワークスペースの作成上限に達しています。Proプランへのアップグレードをご検討ください。'
+            )
+
         # 最初のワークスペースは自動的にデフォルトにする
         is_first = not Workspace.objects.filter(owner=user).exists()
         serializer.save(owner=user, is_default=is_first)

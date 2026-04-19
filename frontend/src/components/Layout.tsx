@@ -6,6 +6,7 @@ import { useAuthStore } from '../store/authStore';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import { WorkspaceModal } from '../features/workspaces/WorkspaceModal';
 import { CardUploadModal } from '../features/cards/CardUploadModal';
+import { UpgradeModal } from '../features/billing/UpgradeModal';
 import type { Workspace, WorkspaceCreateInput } from '../types';
 
 // ========== サイドバー内の各ワークスペース項目 ==========
@@ -107,6 +108,8 @@ export function Layout() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [upgradeModalMessage, setUpgradeModalMessage] = useState('');
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -153,6 +156,14 @@ export function Layout() {
         await updateMutation.mutateAsync({ id: editingWorkspace.id, data });
       } else {
         await createMutation.mutateAsync(data);
+      }
+    } catch (e: any) {
+      if (e?.response?.status === 403) {
+        setUpgradeModalMessage(e.response.data.detail || 'ワークスペースの作成上限に達しています。');
+        setUpgradeModalOpen(true);
+        setModalOpen(false);
+      } else {
+        throw e;
       }
     } finally {
       setIsSubmitting(false);
@@ -302,8 +313,20 @@ export function Layout() {
           isOpen={uploadModalOpen}
           onClose={() => setUploadModalOpen(false)}
           workspace={currentWs}
+          onUpgradeRequired={(message) => {
+             setUploadModalOpen(false);
+             setUpgradeModalMessage(message);
+             setUpgradeModalOpen(true);
+          }}
         />
       )}
+
+      {/* アップグレードモーダル */}
+      <UpgradeModal
+         isOpen={upgradeModalOpen}
+         onClose={() => setUpgradeModalOpen(false)}
+         message={upgradeModalMessage}
+      />
     </div>
   );
 }

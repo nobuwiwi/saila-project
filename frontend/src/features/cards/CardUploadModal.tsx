@@ -10,12 +10,13 @@ interface CardUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspace: Workspace;
+  onUpgradeRequired?: (message: string) => void;
 }
 
 const MAX_FILES = 10;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic'];
 
-export function CardUploadModal({ isOpen, onClose, workspace }: CardUploadModalProps) {
+export function CardUploadModal({ isOpen, onClose, workspace, onUpgradeRequired }: CardUploadModalProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -102,8 +103,12 @@ export function CardUploadModal({ isOpen, onClose, workspace }: CardUploadModalP
           formData.append('image', fileToUpload);
 
           await cardsApi.createCard(formData);
-        } catch (err) {
+        } catch (err: any) {
           console.error("Upload error for file", file.name, err);
+          if (err?.response?.status === 403) {
+            onUpgradeRequired?.(err.response.data.detail || '名刺の登録上限に達しています。');
+            return; // キャンセルして終了
+          }
           // エラーが発生しても他のファイルのアップロードは継続する
         } finally {
           completed++;

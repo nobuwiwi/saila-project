@@ -7,6 +7,8 @@ import { Layout } from './components/Layout';
 import { PrivateRoute } from './components/PrivateRoute';
 import { useAuthStore } from './store/authStore';
 
+import { BillingSuccessPage } from './features/billing/BillingSuccessPage';
+
 function App() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
@@ -17,8 +19,8 @@ function App() {
         path="/"
         element={
           isAuthenticated
-            ? <Navigate to="/cards" replace />
-            : <Navigate to="/login" replace />
+             ? <Navigate to="/cards" replace />
+             : <Navigate to="/login" replace />
         }
       />
 
@@ -30,6 +32,11 @@ function App() {
       <Route path="/dashboard" element={<Navigate to="/cards" replace />} />
       <Route path="/workspaces" element={<Navigate to="/cards" replace />} />
       <Route path="/workspaces/:workspaceId/cards" element={<Navigate to="/cards" replace />} />
+
+      {/* 1画面完結のフロー（レイアウトなし・認証要） */}
+      <Route element={<PrivateRoute />}>
+        <Route path="/billing/success" element={<BillingSuccessPage />} />
+      </Route>
 
       {/* 認証必須 — Layout を親に */}
       <Route element={<PrivateRoute />}>

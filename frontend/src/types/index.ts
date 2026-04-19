@@ -8,6 +8,8 @@ export interface User {
   created_at: string;
   updated_at: string;
   can_add_card: boolean;
+  can_add_workspace: boolean;
+  is_pro: boolean;
 }
 
 // ==================== Workspace ====================
