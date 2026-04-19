@@ -102,6 +102,20 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
+  const handleManagePlan = async () => {
+    setIsBillingSubmitting(true);
+    try {
+      const { url } = await billingApi.createPortalSession();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error(err);
+      alert('カスタマーポータルへの遷移に失敗しました。');
+      setIsBillingSubmitting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -154,6 +168,15 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   className="px-4 py-2 text-[12px] font-medium text-white bg-[#6366f1] rounded-md hover:bg-[#5254cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap shrink-0"
                 >
                   {isBillingSubmitting ? '処理中...' : 'Proにアップグレード (¥480/月)'}
+                </button>
+              )}
+              {user.is_pro && (
+                <button
+                  onClick={handleManagePlan}
+                  disabled={isBillingSubmitting}
+                  className="px-4 py-2 text-[12px] font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-[#6366f1] disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap shrink-0"
+                >
+                  {isBillingSubmitting ? '処理中...' : 'プランを管理'}
                 </button>
               )}
             </div>

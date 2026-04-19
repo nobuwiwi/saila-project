@@ -45,6 +45,27 @@ class CreateCheckoutSessionView(APIView):
             logger.error(f"Stripe Checkout Error: {str(e)}")
             return Response({'error': str(e)}, status=500)
 
+class CreateCustomerPortalSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if not request.user.stripe_customer_id:
+            return Response({'error': 'Stripe customer ID not found'}, status=400)
+            
+        try:
+            origin = request.headers.get('origin', 'https://your-frontend.railway.app')
+            return_url = f"{origin}/cards"
+
+            portal_session = stripe.billing_portal.Session.create(
+                customer=request.user.stripe_customer_id,
+                return_url=return_url,
+            )
+            return Response({'url': portal_session.url})
+        except Exception as e:
+            import traceback
+            logger.error(f"Stripe Customer Portal Error: {traceback.format_exc()}")
+            return Response({'error': str(e)}, status=500)
+
 class StripeWebhookView(APIView):
     permission_classes = [AllowAny]
 
