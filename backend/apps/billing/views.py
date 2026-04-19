@@ -68,8 +68,8 @@ class StripeWebhookView(APIView):
             # Handle the event
             if event['type'] == 'checkout.session.completed':
                 session = event['data']['object']
-                client_reference_id = session.get('client_reference_id')
-                customer_id = session.get('customer')
+                client_reference_id = getattr(session, 'client_reference_id', None)
+                customer_id = getattr(session, 'customer', None)
                 
                 if client_reference_id:
                     from apps.accounts.models import User
@@ -84,7 +84,7 @@ class StripeWebhookView(APIView):
 
             elif event['type'] == 'customer.subscription.deleted':
                 subscription = event['data']['object']
-                customer_id = subscription.get('customer')
+                customer_id = getattr(subscription, 'customer', None)
                 if customer_id:
                     from apps.accounts.models import User
                     user = User.objects.filter(stripe_customer_id=customer_id).first()
