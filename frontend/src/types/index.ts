@@ -10,6 +10,7 @@ export interface User {
   can_add_card: boolean;
   can_add_workspace: boolean;
   is_pro: boolean;
+  is_trial_active: boolean;
 }
 
 // ==================== Workspace ====================

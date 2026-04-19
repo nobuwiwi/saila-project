@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { authApi } from '../../api/auth';
+import { billingApi } from '../../api/billing';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -22,6 +23,9 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+  // Billing state
+  const [isBillingSubmitting, setIsBillingSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -84,6 +88,20 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     }
   };
 
+  const handleUpgrade = async () => {
+    setIsBillingSubmitting(true);
+    try {
+      const { url } = await billingApi.createCheckoutSession();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error(err);
+      alert('決済画面への遷移に失敗しました。');
+      setIsBillingSubmitting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
          onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -103,6 +121,44 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         {/* Content */}
         <div className="p-5 overflow-y-auto space-y-8">
           
+          {/* Plan Section */}
+          <section>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">プランと支払い</h3>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <p className="text-[13px] font-medium text-gray-900">
+                  現在のプラン: {' '}
+                  {user.is_pro ? (
+                    <span className="text-[#6366f1] font-semibold">Proプラン</span>
+                  ) : user.is_trial_active ? (
+                    <span className="text-green-600 font-semibold">無料プラン（トライアル中）</span>
+                  ) : (
+                    <span className="text-gray-600 font-semibold">無料プラン</span>
+                  )}
+                </p>
+                {!user.is_pro && user.trial_started_at && (
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    無料トライアル開始日: {new Date(user.trial_started_at).toLocaleDateString()}
+                  </p>
+                )}
+                {user.is_pro && (
+                  <p className="text-[11px] text-gray-500 mt-1">
+                    現在の機能制限: なし (無制限)
+                  </p>
+                )}
+              </div>
+              {!user.is_pro && (
+                <button
+                  onClick={handleUpgrade}
+                  disabled={isBillingSubmitting}
+                  className="px-4 py-2 text-[12px] font-medium text-white bg-[#6366f1] rounded-md hover:bg-[#5254cc] disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap shrink-0"
+                >
+                  {isBillingSubmitting ? '処理中...' : 'Proにアップグレード (¥480/月)'}
+                </button>
+              )}
+            </div>
+          </section>
+
           {/* Profile Section */}
           <section>
             <h3 className="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">プロフィール</h3>
