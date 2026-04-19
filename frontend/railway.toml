@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "npm run build"
 
 [deploy]
-startCommand = "npx serve -s dist --listen $PORT"
+startCommand = "npx serve -s dist --listen $PORT --single"
 
 [build.nixpacksPlan.phases.setup]
 nixPkgs = ["nodejs_20"]
