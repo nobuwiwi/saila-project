@@ -28,15 +28,21 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [isBillingSubmitting, setIsBillingSubmitting] = useState(false);
 
   useEffect(() => {
-    if (isOpen && user) {
-      setDisplayName(user.display_name || '');
-      setOldPassword('');
-      setNewPassword('');
-      setProfileSuccess(false);
-      setPasswordSuccess(false);
-      setPasswordError('');
+    if (isOpen) {
+      if (user) {
+        setDisplayName(user.display_name || '');
+        setOldPassword('');
+        setNewPassword('');
+        setProfileSuccess(false);
+        setPasswordSuccess(false);
+        setPasswordError('');
+      }
+      // Ensure we have the most up-to-date billing state (like pro_cancel_at_period_end)
+      authApi.getMe()
+        .then(updatedUser => setUser(updatedUser))
+        .catch(err => console.error('Failed to fetch latest user info:', err));
     }
-  }, [isOpen, user]);
+  }, [isOpen, user?.id]);
 
   if (!isOpen || !user) return null;
 
