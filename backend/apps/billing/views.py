@@ -49,47 +49,56 @@ class StripeWebhookView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        payload = request.body
-        sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
-        event = None
-
         try:
-            event = stripe.Webhook.construct_event(
-                payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-            )
-        except ValueError as e:
-            logger.warning("Invalid payload for Stripe webhook")
-            return Response(status=400)
-        except stripe.error.SignatureVerificationError as e:
-            logger.warning("Invalid signature for Stripe webhook")
-            return Response(status=400)
+            payload = request.body
+            sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+            event = None
 
-        # Handle the event
-        if event['type'] == 'checkout.session.completed':
-            session = event['data']['object']
-            client_reference_id = session.get('client_reference_id')
-            customer_id = session.get('customer')
-            
-            if client_reference_id:
-                from apps.accounts.models import User
-                from django.utils import timezone
-                user = User.objects.filter(id=client_reference_id).first()
-                if user:
-                    user.is_pro = True
-                    user.stripe_customer_id = customer_id
-                    user.pro_started_at = timezone.now()
-                    user.save(update_fields=['is_pro', 'stripe_customer_id', 'pro_started_at'])
-                    logger.info(f"User {user.email} upgraded to Pro.")
+            try:
+                event = stripe.Webhook.construct_event(
+                    payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+                )
+            except ValueError as e:
+                logger.warning("Invalid payload for Stripe webhook")
+                return Response(status=400)
+            except stripe.error.SignatureVerificationError as e:
+                logger.warning("Invalid signature for Stripe webhook")
+                return Response(status=400)
 
-        elif event['type'] == 'customer.subscription.deleted':
-            subscription = event['data']['object']
-            customer_id = subscription.get('customer')
-            if customer_id:
-                from apps.accounts.models import User
-                user = User.objects.filter(stripe_customer_id=customer_id).first()
-                if user:
-                    user.is_pro = False
-                    user.save(update_fields=['is_pro'])
-                    logger.info(f"User {user.email} subscription deleted.")
+            # Handle the event
+            if event['type'] == 'checkout.session.completed':
+                session = event['data']['object']
+                client_reference_id = session.get('client_reference_id')
+                customer_id = session.get('customer')
+                
+                if client_reference_id:
+                    from apps.accounts.models import User
+                    from django.utils import timezone
+                    user = User.objects.filter(id=client_reference_id).first()
+                    if user:
+                        user.is_pro = True
+                        user.stripe_customer_id = customer_id
+                        user.pro_started_at = timezone.now()
+                        user.save(update_fields=['is_pro', 'stripe_customer_id', 'pro_started_at'])
+                        logger.info(f"User {user.email} upgraded to Pro.")
 
-        return Response(status=200)
+            elif event['type'] == 'customer.subscription.deleted':
+                subscription = event['data']['object']
+                customer_id = subscription.get('customer')
+                if customer_id:
+                    from apps.accounts.models import User
+                    user = User.objects.filter(stripe_customer_id=customer_id).first()
+                    if user:
+                        user.is_pro = False
+                        user.save(update_fields=['is_pro'])
+                        logger.info(f"User {user.email} subscription deleted.")
+
+            return Response(status=200)
+
+        except Exception as e:
+            import traceback
+            error_trace = traceback.format_exc()
+            logger.error(f"Webhook Unhandled Error: {error_trace}")
+            # Stripeダッシュボード上でエラー原因を読めるようにテキストを返す
+            return Response({"error": str(e), "trace": error_trace}, status=500)
+
