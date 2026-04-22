@@ -36,7 +36,7 @@ export const RegisterPage: React.FC = () => {
       setIsLoading(true);
       const res = await authApi.register(email, password, displayName);
       login(res.user, res.tokens.access, res.tokens.refresh);
-      navigate('/dashboard');
+      navigate('/onboarding');
     } catch (err: any) {
        const data = err.response?.data;
        let msg = '登録に失敗しました。';

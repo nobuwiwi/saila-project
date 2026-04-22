@@ -17,7 +17,7 @@ export const authApi = {
     return response.data;
   },
   
-  updateProfile: async (data: { display_name?: string }) => {
+  updateProfile: async (data: { display_name?: string; onboarding_done?: boolean }) => {
     const response = await apiClient.patch('/accounts/me/', data);
     return response.data;
   },

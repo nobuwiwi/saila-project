@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'apps.workspaces',
     'apps.cards',
     'apps.billing',
+    'apps.axes',
 ]
 
 MIDDLEWARE = [

@@ -12,6 +12,45 @@ export interface User {
   is_pro: boolean;
   is_trial_active: boolean;
   pro_cancel_at_period_end?: boolean;
+  onboarding_done: boolean;
+}
+
+// ==================== Constants ====================
+export const RELATION_CHOICES = [
+  { value: "customer",    label: "顧客・クライアント" },
+  { value: "outsource",   label: "委託先・外注先" },
+  { value: "supplier",    label: "仕入先・パートナー" },
+  { value: "agency",      label: "代理店・販売店" },
+  { value: "internal",    label: "社内・同僚" },
+  { value: "group",       label: "グループ会社・関連会社" },
+  { value: "referral",    label: "紹介者・仲介者" },
+  { value: "community",   label: "勉強会・コミュニティ" },
+  { value: "event",       label: "展示会・イベント" },
+  { value: "investor",    label: "投資家・出資者" },
+  { value: "media",       label: "メディア・プレス" },
+  { value: "other",       label: "その他" },
+];
+
+export const BUSINESS_AXIS_CHOICES = [
+  { value: "it_engineering",  label: "ITエンジニアリング" },
+  { value: "hr_recruitment",  label: "人材紹介・採用支援" },
+  { value: "marketing",       label: "マーケティング・広告" },
+  { value: "design",          label: "デザイン・クリエイティブ" },
+  { value: "consulting",      label: "コンサルティング" },
+  { value: "sales",           label: "営業・セールス" },
+  { value: "education",       label: "教育・研修・コーチング" },
+  { value: "writing",         label: "ライティング・メディア" },
+  { value: "event_community", label: "イベント・コミュニティ" },
+  { value: "other",           label: "その他" },
+];
+
+// ==================== Axes ====================
+export interface UserBusinessAxis {
+  id: string;
+  axis: string;
+  axis_display: string;
+  sort_order: number;
+  created_at: string;
 }
 
 // ==================== Workspace ====================
@@ -29,7 +68,9 @@ export interface Workspace {
 }
 
 export interface WorkspaceCreateInput {
-  name: string;
+  name?: string;
+  company_name?: string;
+  relation_type?: string;
   description?: string;
   icon?: string;
   color?: string;
@@ -37,6 +78,8 @@ export interface WorkspaceCreateInput {
 
 export interface WorkspaceUpdateInput {
   name?: string;
+  company_name?: string;
+  relation_type?: string;
   description?: string;
   icon?: string;
   color?: string;

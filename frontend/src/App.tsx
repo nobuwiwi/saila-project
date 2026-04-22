@@ -9,8 +9,11 @@ import { useAuthStore } from './store/authStore';
 
 import { BillingSuccessPage } from './features/billing/BillingSuccessPage';
 
+import { OnboardingPage } from './features/onboarding/OnboardingPage';
+
 function App() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
 
   return (
     <Routes>
@@ -19,7 +22,7 @@ function App() {
         path="/"
         element={
           isAuthenticated
-             ? <Navigate to="/cards" replace />
+             ? (user?.onboarding_done ? <Navigate to="/cards" replace /> : <Navigate to="/onboarding" replace />)
              : <Navigate to="/login" replace />
         }
       />
@@ -36,6 +39,9 @@ function App() {
       {/* 1画面完結のフロー（レイアウトなし・認証要） */}
       <Route element={<PrivateRoute />}>
         <Route path="/billing/success" element={<BillingSuccessPage />} />
+        <Route path="/onboarding" element={
+          user?.onboarding_done ? <Navigate to="/cards" replace /> : <OnboardingPage />
+        } />
       </Route>
 
       {/* 認証必須 — Layout を親に */}

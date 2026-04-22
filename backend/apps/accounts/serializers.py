@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at', 'can_add_card', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end')
+        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at', 'can_add_card', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end', 'onboarding_done')
         read_only_fields = ('id', 'email', 'trial_started_at', 'created_at', 'can_add_card', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end')
 
     def get_can_add_card(self, obj):

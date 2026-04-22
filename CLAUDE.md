@@ -130,6 +130,7 @@ stripe_customer_id  StripeカスタマーID（空白可）
 pro_started_at   Pro開始日時（null=True）
 is_active        アクティブフラグ
 is_staff         管理者フラグ
+onboarding_done  オンボーディング完了フラグ（default=False）
 created_at / updated_at
 ```
 
@@ -146,13 +147,15 @@ created_at / updated_at
 
 ### 4-2. Workspace（apps/workspaces/models.py）
 ```
-id          UUID（PK）
-owner       FK → User
-name        ワークスペース名（例: 「本業」「副業A」）
-description 説明
-color       HEXカラー（例: "#6366f1"）
-is_default  デフォルトワークスペースフラグ
-sort_order  表示順
+id            UUID（PK）
+owner         FK → User
+company_name  会社名（CharField・例:「株式会社A」）
+relation_type 関係性（CharField・choices=RELATION_CHOICES）
+name          ワークスペース名（自動生成: "{company_name}｜{relation_type_display}"）
+description   説明
+color         HEXカラー（例: "#6366f1"）
+is_default    デフォルトワークスペースフラグ
+sort_order    表示順
 created_at / updated_at
 ```
 
@@ -190,6 +193,27 @@ created_at / updated_at
   "notes": "AIが補足した情報など"
 }
 ```
+
+### 4-4. UserBusinessAxis（apps/axes/models.py）
+```
+id         UUID（PK）
+owner      FK → User
+axis       CharField（choices=BUSINESS_AXIS_CHOICES）
+sort_order 表示順
+created_at
+```
+
+**BUSINESS_AXIS_CHOICES**
+- it_engineering: ITエンジニアリング
+- hr_recruitment: 人材紹介・採用支援
+- marketing: マーケティング・広告
+- design: デザイン・クリエイティブ
+- consulting: コンサルティング
+- sales: 営業・セールス
+- education: 教育・研修・コーチング
+- writing: ライティング・メディア
+- event_community: イベント・コミュニティ
+- other: その他
 
 ---
 
@@ -246,9 +270,10 @@ created_at / updated_at
 
 ### ルーティング
 ```
-/              → /cards にリダイレクト
+/              → /cards にリダイレクト（未オンボーディング時は /onboarding）
 /login         → ログイン画面
 /register      → 登録画面
+/onboarding    → PrivateRoute + OnboardingPage（初期設定ウィザード）
 /cards         → PrivateRoute + Layout + CardTablePage
 /trash         → PrivateRoute + Layout + TrashPage
 /billing/success → 決済完了画面（STEP 12で追加）
@@ -282,6 +307,11 @@ GET    /api/workspaces/{id}/                 ワークスペース詳細
 PATCH  /api/workspaces/{id}/                 ワークスペース更新
 DELETE /api/workspaces/{id}/                 ワークスペース削除
 POST   /api/workspaces/{id}/set_default/     デフォルト設定
+
+GET    /api/axes/choices/                    事業軸の選択肢一覧
+GET    /api/axes/                            登録済み事業軸一覧
+POST   /api/axes/                            事業軸の登録
+DELETE /api/axes/{id}/                       事業軸の削除
 
 GET    /api/cards/?workspace={id}            名刺一覧（ワークスペース絞り込み）
 POST   /api/cards/                           名刺作成（画像アップロード）
@@ -451,9 +481,10 @@ startCommand = ""
 - **[x] STEP 1** Django Hello World + `/api/health/` ✅
 - **[x] STEP 2** LP（`lp/index.html`）✅
 
-### フェーズ2：認証
+### フェーズ2：認証・初期設定
 - **[x] STEP 3** メール＋パスワード認証バックエンド ✅
 - **[x] STEP 4** ログイン・登録画面（React）✅
+- **[x] STEP 4.5** オンボーディングフロー（事業軸・立場・ワークスペース初期設定）✅
 
 ### フェーズ3：コア機能
 - **[x] STEP 5** ワークスペースAPI ✅
@@ -469,7 +500,7 @@ startCommand = ""
 - **[x] STEP 11** `purge_deleted_cards` コマンド（7日経過分の物理削除）✅
 
 ### フェーズ6：マネタイズ
-- **[ ] STEP 12** Stripe決済連携（Proプラン）← 次
+- **[X] STEP 12** Stripe決済連携（Proプラン）
 
 ---
 
