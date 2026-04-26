@@ -10,7 +10,14 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
-  if (token) {
+  const url = config.url || '';
+  
+  // 認証関連のエンドポイントでは旧トークンを送信しない（ログイン失敗を防ぐため）
+  const isAuthEndpoint = url.includes('/accounts/login/') || 
+                         url.includes('/accounts/register/') || 
+                         url.includes('/token/refresh/');
+                         
+  if (token && !isAuthEndpoint) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
