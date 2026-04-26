@@ -21,6 +21,8 @@ export function CardsPage() {
   // 選択中のタブ: null = 未分類, axisId = 特定の事業軸
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
+  const axes = selectedWorkspace?.axes ?? [];
+
   const { data: cards = [], isLoading } = useQuery({
     queryKey: ['cards', selectedWorkspace?.id],
     queryFn: () => cardsApi.getCards(selectedWorkspace?.id),
@@ -42,6 +44,29 @@ export function CardsPage() {
     },
   });
 
+  // 全フックをここに集約（早期returnより前）
+  const uncategorizedCards = useMemo(() => cards.filter(c => !c.axis), [cards]);
+
+  const cardsByAxisId = useMemo(() => {
+    const map: Record<string, BusinessCard[]> = {};
+    for (const ax of axes) {
+      map[ax.id] = cards.filter(c => c.axis === ax.id);
+    }
+    return map;
+  }, [axes, cards]);
+
+  const displayedCards = useMemo(() => {
+    if (activeTabId === null) return uncategorizedCards;
+    return cardsByAxisId[activeTabId] ?? [];
+  }, [activeTabId, uncategorizedCards, cardsByAxisId]);
+
+  const tabs = useMemo<{ id: string | null; label: string; count: number }[]>(() => [
+    { id: null, label: '未分類', count: uncategorizedCards.length },
+    ...axes.map(ax => ({ id: ax.id, label: ax.axis_display, count: cardsByAxisId[ax.id]?.length ?? 0 })),
+  ], [axes, uncategorizedCards, cardsByAxisId]);
+
+  const activeTabLabel = tabs.find(t => t.id === activeTabId)?.label ?? '未分類';
+
   if (!selectedWorkspace) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -49,30 +74,6 @@ export function CardsPage() {
       </div>
     );
   }
-
-  const axes = selectedWorkspace.axes ?? [];
-
-  // カードを事業軸ごとに集計（タブのバッジ用）
-  const uncategorizedCards = cards.filter(c => !c.axis);
-  const cardsByAxisId: Record<string, BusinessCard[]> = {};
-  for (const ax of axes) {
-    cardsByAxisId[ax.id] = cards.filter(c => c.axis === ax.id);
-  }
-
-  // 表示中のカード（選択タブに応じてフィルタ）
-  const displayedCards = useMemo(() => {
-    if (activeTabId === null) return uncategorizedCards;
-    return cardsByAxisId[activeTabId] ?? [];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTabId, cards]);
-
-  // タブ一覧: 未分類 + 各事業軸
-  const tabs: { id: string | null; label: string; count: number }[] = [
-    { id: null, label: '未分類', count: uncategorizedCards.length },
-    ...axes.map(ax => ({ id: ax.id, label: ax.axis_display, count: cardsByAxisId[ax.id]?.length ?? 0 })),
-  ];
-
-  const activeTabLabel = tabs.find(t => t.id === activeTabId)?.label ?? '未分類';
 
   return (
     <div className="flex flex-col h-full bg-white rounded-lg border border-[#eeeeee] overflow-hidden">
