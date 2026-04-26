@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cardsApi } from '../../api/cards';
@@ -17,8 +17,9 @@ export function CardsPage() {
 
   const [selectedCard, setSelectedCard] = useState<BusinessCard | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [uploadAxisId, setUploadAxisId] = useState<string | null>(null);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  // 選択中のタブ: null = 未分類, axisId = 特定の事業軸
+  const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
   const { data: cards = [], isLoading } = useQuery({
     queryKey: ['cards', selectedWorkspace?.id],
@@ -44,136 +45,65 @@ export function CardsPage() {
   if (!selectedWorkspace) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-gray-400">
-          左サイドバーからワークスペースを選択してください
-        </p>
+        <p className="text-sm text-gray-400">左サイドバーからワークスペースを選択してください</p>
       </div>
     );
   }
 
-  const handleRowClick = (card: BusinessCard) => {
-    setSelectedCard(card);
-    setDrawerOpen(true);
-  };
-
-  const handleAddCard = (axisId: string | null) => {
-    setUploadAxisId(axisId);
-    setUploadModalOpen(true);
-  };
-
-  // 事業軸ごとに名刺を仕分け
   const axes = selectedWorkspace.axes ?? [];
-  const cardsByAxis: Record<string, BusinessCard[]> = {};
-  const uncategorized: BusinessCard[] = [];
 
+  // カードを事業軸ごとに集計（タブのバッジ用）
+  const uncategorizedCards = cards.filter(c => !c.axis);
+  const cardsByAxisId: Record<string, BusinessCard[]> = {};
   for (const ax of axes) {
-    cardsByAxis[ax.id] = [];
+    cardsByAxisId[ax.id] = cards.filter(c => c.axis === ax.id);
   }
 
-  for (const card of cards) {
-    if (card.axis && cardsByAxis[card.axis] !== undefined) {
-      cardsByAxis[card.axis].push(card);
-    } else {
-      uncategorized.push(card);
-    }
-  }
+  // 表示中のカード（選択タブに応じてフィルタ）
+  const displayedCards = useMemo(() => {
+    if (activeTabId === null) return uncategorizedCards;
+    return cardsByAxisId[activeTabId] ?? [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTabId, cards]);
 
-  // 事業軸がひとつも設定されていない場合は従来の単一テーブル表示
-  const hasSingleTable = axes.length === 0;
-  const tableGroups: { id: string | null; label: string | null; cards: BusinessCard[] }[] = hasSingleTable
-    ? [{ id: null, label: null, cards }]
-    : [
-        ...axes.map(ax => ({ id: ax.id, label: ax.axis_display, cards: cardsByAxis[ax.id] })),
-        ...(uncategorized.length > 0 ? [{ id: null, label: '未分類', cards: uncategorized }] : []),
-      ];
+  // タブ一覧: 未分類 + 各事業軸
+  const tabs: { id: string | null; label: string; count: number }[] = [
+    { id: null, label: '未分類', count: uncategorizedCards.length },
+    ...axes.map(ax => ({ id: ax.id, label: ax.axis_display, count: cardsByAxisId[ax.id]?.length ?? 0 })),
+  ];
+
+  const activeTabLabel = tabs.find(t => t.id === activeTabId)?.label ?? '未分類';
 
   return (
-    <div className="flex flex-col gap-6">
-      {isLoading ? (
-        <div className="flex items-center justify-center p-12">
-          <span className="text-sm text-gray-400">読み込み中...</span>
-        </div>
-      ) : (
-        tableGroups.map((group) => (
-          <AxisSection
-            key={group.id ?? '__uncategorized__'}
-            label={group.label}
-            cards={group.cards}
-            workspace={selectedWorkspace}
-            onRowClick={handleRowClick}
-            onAddCard={() => handleAddCard(group.id)}
-            onUpdate={(id, data) => updateMutation.mutate({ id, data })}
-          />
-        ))
-      )}
+    <div className="flex flex-col h-full bg-white rounded-lg border border-[#eeeeee] overflow-hidden">
 
-      {/* 事業軸が0件の場合の空状態 */}
-      {!isLoading && hasSingleTable && cards.length === 0 && (
-        <EmptyState onAddCard={() => handleAddCard(null)} />
-      )}
+      {/* ===== タブバー ===== */}
+      <div className="flex items-center gap-0 border-b border-[#eeeeee] px-4 bg-white">
+        {tabs.map(tab => (
+          <button
+            key={tab.id ?? '__uncategorized__'}
+            onClick={() => setActiveTabId(tab.id)}
+            className={`relative flex items-center gap-1.5 px-4 py-3 text-[13px] font-medium transition-colors whitespace-nowrap
+              ${activeTabId === tab.id
+                ? 'text-[#6366f1] border-b-2 border-[#6366f1] -mb-px'
+                : 'text-gray-500 hover:text-gray-700'
+              }`}
+          >
+            {tab.label}
+            <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-semibold
+              ${activeTabId === tab.id ? 'bg-[#eef2ff] text-[#6366f1]' : 'bg-gray-100 text-gray-500'}`}>
+              {tab.count}
+            </span>
+          </button>
+        ))}
 
-      <CardDetailDrawer
-        isOpen={drawerOpen}
-        card={selectedCard}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedCard(null);
-        }}
-      />
-
-      {selectedWorkspace && uploadModalOpen && (
-        <CardUploadModal
-          isOpen={uploadModalOpen}
-          onClose={() => setUploadModalOpen(false)}
-          workspace={selectedWorkspace}
-          axisId={uploadAxisId}
-          onUpgradeRequired={(message) => {
-            setUploadModalOpen(false);
-            onUpgradeRequired(message);
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-// ===== 事業軸ごとのセクション =====
-function AxisSection({
-  label,
-  cards,
-  workspace,
-  onRowClick,
-  onAddCard,
-  onUpdate,
-}: {
-  label: string | null;
-  cards: BusinessCard[];
-  workspace: Workspace;
-  onRowClick: (card: BusinessCard) => void;
-  onAddCard: () => void;
-  onUpdate: (id: string, data: Partial<BusinessCard>) => void;
-}) {
-  return (
-    <div className="bg-white rounded-lg border border-[#eeeeee] overflow-hidden">
-      {/* セクションヘッダー */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#eeeeee] bg-[#f7f7f8]">
-        <div className="flex items-center gap-2">
-          {label && (
-            <>
-              <span
-                className="w-2 h-2 rounded-full shrink-0"
-                style={{ backgroundColor: workspace.color }}
-              />
-              <h2 className="text-[13px] font-semibold text-gray-700">{label}</h2>
-              <span className="text-[11px] text-gray-400 ml-1">{cards.length} 枚</span>
-            </>
-          )}
-        </div>
+        {/* スペーサー + 追加ボタン */}
+        <div className="flex-1" />
         <button
-          id={`add-card-btn-${label ?? 'default'}`}
-          onClick={onAddCard}
-          className="flex items-center gap-1 px-3 py-1.5 text-[12px] font-medium text-white bg-[#6366f1]
-                     rounded-md hover:bg-[#5254cc] active:bg-[#4748b8] transition-colors
+          id="add-card-btn"
+          onClick={() => setUploadModalOpen(true)}
+          className="flex items-center gap-1 px-3 py-1.5 my-2 text-[12px] font-medium text-white bg-[#6366f1]
+                     rounded-md hover:bg-[#5254cc] transition-colors
                      focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:ring-offset-1"
         >
           <span className="text-sm leading-none">+</span>
@@ -181,18 +111,29 @@ function AxisSection({
         </button>
       </div>
 
-      {/* テーブル */}
-      {cards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
-            <svg className="w-6 h-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
+      {/* ===== テーブル ===== */}
+      <div className="flex-1 overflow-auto">
+        {isLoading ? (
+          <div className="flex items-center justify-center p-12">
+            <span className="text-sm text-gray-400">読み込み中...</span>
           </div>
-          <p className="text-[13px] text-gray-400">名刺がありません。「名刺を追加」から登録してください。</p>
-        </div>
-      ) : (
-        <div className="overflow-auto">
+        ) : displayedCards.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <h3 className="text-[14px] font-medium text-gray-900">
+              {activeTabId === null ? '未分類の名刺がありません' : `「${activeTabLabel}」の名刺がありません`}
+            </h3>
+            <p className="text-[13px] text-gray-500 mt-1">
+              {activeTabId === null
+                ? '「名刺を追加」から新しい名刺を登録してください。'
+                : '未分類タブから名刺を移動してください。'}
+            </p>
+          </div>
+        ) : (
           <table className="w-full text-left border-collapse min-w-max">
             <thead className="bg-[#f7f7f8] sticky top-0 z-10 border-b border-[#eeeeee]">
               <tr>
@@ -207,20 +148,16 @@ function AxisSection({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#eeeeee]">
-              {cards.map((card) => (
+              {displayedCards.map((card) => (
                 <tr
                   key={card.id}
-                  onClick={() => onRowClick(card)}
+                  onClick={() => { setSelectedCard(card); setDrawerOpen(true); }}
                   className="group hover:bg-[#fcfcff] cursor-pointer transition-colors"
                 >
                   <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
                     {card.thumbnail ? (
                       <div className="relative group/thumb w-12 h-8">
-                        <img
-                          src={card.thumbnail}
-                          alt="thumbnail"
-                          className="w-full h-full object-cover rounded shadow-sm border border-gray-200"
-                        />
+                        <img src={card.thumbnail} alt="thumbnail" className="w-full h-full object-cover rounded shadow-sm border border-gray-200" />
                         <div className="hidden group-hover/thumb:block absolute top-[110%] left-[-20%] z-50 p-1 bg-white border border-gray-200 shadow-xl rounded-lg pointer-events-none">
                           <img src={card.image ?? card.thumbnail} alt="preview" className="w-[300px] max-w-none object-contain rounded-md" />
                         </div>
@@ -232,34 +169,24 @@ function AxisSection({
                     )}
                   </td>
                   <td className="px-4 py-3 text-[13px] text-gray-900 truncate max-w-[150px]">
-                    <EditableCell
-                      value={card.parsed_data?.company_name}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, company_name: val } })}
-                    />
+                    <EditableCell value={card.parsed_data?.company_name}
+                      onSave={(val) => updateMutation.mutate({ id: card.id, data: { parsed_data: { ...card.parsed_data, company_name: val } } })} />
                   </td>
                   <td className="px-4 py-3 text-[13px] font-medium text-gray-900 truncate max-w-[120px]">
-                    <EditableCell
-                      value={card.parsed_data?.full_name}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, full_name: val } })}
-                    />
+                    <EditableCell value={card.parsed_data?.full_name}
+                      onSave={(val) => updateMutation.mutate({ id: card.id, data: { parsed_data: { ...card.parsed_data, full_name: val } } })} />
                   </td>
                   <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
-                    <EditableCell
-                      value={card.parsed_data?.title}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, title: val } })}
-                    />
+                    <EditableCell value={card.parsed_data?.title}
+                      onSave={(val) => updateMutation.mutate({ id: card.id, data: { parsed_data: { ...card.parsed_data, title: val } } })} />
                   </td>
                   <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
-                    <EditableCell
-                      value={card.parsed_data?.phone || card.parsed_data?.mobile}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, phone: val } })}
-                    />
+                    <EditableCell value={card.parsed_data?.phone || card.parsed_data?.mobile}
+                      onSave={(val) => updateMutation.mutate({ id: card.id, data: { parsed_data: { ...card.parsed_data, phone: val } } })} />
                   </td>
                   <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[150px]">
-                    <EditableCell
-                      value={card.parsed_data?.email}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, email: val } })}
-                    />
+                    <EditableCell value={card.parsed_data?.email}
+                      onSave={(val) => updateMutation.mutate({ id: card.id, data: { parsed_data: { ...card.parsed_data, email: val } } })} />
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <StatusBadge status={card.analysis_status} />
@@ -271,92 +198,48 @@ function AxisSection({
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ===== 空状態（事業軸なしの場合） =====
-function EmptyState({ onAddCard }: { onAddCard: () => void }) {
-  return (
-    <div className="bg-white rounded-lg border border-[#eeeeee] flex flex-col items-center justify-center py-20 text-center">
-      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-        <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
+        )}
       </div>
-      <h3 className="text-[14px] font-medium text-gray-900">名刺がありません</h3>
-      <p className="text-[13px] text-gray-500 mt-1 mb-5">「名刺を追加」から新しい名刺を登録してください。</p>
-      <button
-        onClick={onAddCard}
-        className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#6366f1] text-white
-                   text-[13px] font-medium rounded-md hover:bg-[#5254cc] transition-colors"
-      >
-        <span className="text-base leading-none">+</span>
-        <span>名刺を追加</span>
-      </button>
+
+      <CardDetailDrawer
+        isOpen={drawerOpen}
+        card={selectedCard}
+        workspace={selectedWorkspace}
+        onClose={() => { setDrawerOpen(false); setSelectedCard(null); }}
+      />
+
+      {uploadModalOpen && (
+        <CardUploadModal
+          isOpen={uploadModalOpen}
+          onClose={() => setUploadModalOpen(false)}
+          workspace={selectedWorkspace}
+          onUpgradeRequired={(message) => {
+            setUploadModalOpen(false);
+            onUpgradeRequired(message);
+          }}
+        />
+      )}
     </div>
   );
 }
 
 // ===== Badge =====
 function StatusBadge({ status }: { status: BusinessCard['analysis_status'] }) {
-  const styles = {
-    pending: 'bg-gray-100 text-gray-600 border-gray-200',
-    processing: 'bg-blue-50 text-blue-600 border-blue-200',
-    done: 'bg-green-50 text-green-600 border-green-200',
-    failed: 'bg-red-50 text-red-600 border-red-200',
-  };
-  const labels = {
-    pending: '解析待ち',
-    processing: '解析中',
-    done: '完了',
-    failed: '失敗',
-  };
-
-  return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium border ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  );
+  const styles = { pending: 'bg-gray-100 text-gray-600 border-gray-200', processing: 'bg-blue-50 text-blue-600 border-blue-200', done: 'bg-green-50 text-green-600 border-green-200', failed: 'bg-red-50 text-red-600 border-red-200' };
+  const labels = { pending: '解析待ち', processing: '解析中', done: '完了', failed: '失敗' };
+  return <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium border ${styles[status]}`}>{labels[status]}</span>;
 }
 
 // ===== Editable Cell =====
 function EditableCell({ value, onSave }: { value?: string; onSave: (val: string) => void }) {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value || '');
-
-  const commit = () => {
-    setIsEditing(false);
-    if (localValue !== value) {
-      onSave(localValue);
-    }
-  };
-
+  const commit = () => { setIsEditing(false); if (localValue !== value) onSave(localValue); };
   if (isEditing) {
-    return (
-      <input
-        autoFocus
-        value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => e.key === 'Enter' && commit()}
-        onClick={(e) => e.stopPropagation()}
-        className="w-full px-1 py-0.5 text-[13px] border-b border-[#6366f1] focus:outline-none bg-white -mx-1"
-      />
-    );
+    return <input autoFocus value={localValue} onChange={(e) => setLocalValue(e.target.value)} onBlur={commit} onKeyDown={(e) => e.key === 'Enter' && commit()} onClick={(e) => e.stopPropagation()} className="w-full px-1 py-0.5 text-[13px] border-b border-[#6366f1] focus:outline-none bg-white -mx-1" />;
   }
-
   return (
-    <div
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        setLocalValue(value || '');
-        setIsEditing(true);
-      }}
-      className="min-h-[20px] w-full"
-    >
+    <div onDoubleClick={(e) => { e.stopPropagation(); setLocalValue(value || ''); setIsEditing(true); }} className="min-h-[20px] w-full">
       {value || <span className="text-transparent group-hover:text-gray-300">-</span>}
     </div>
   );

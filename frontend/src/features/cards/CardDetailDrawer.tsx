@@ -2,24 +2,23 @@ import { useState, useEffect } from 'react';
 import { X, Trash2, RefreshCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cardsApi } from '../../api/cards';
-import type { BusinessCard, ParsedData } from '../../types';
+import type { BusinessCard, ParsedData, Workspace } from '../../types';
 
 interface CardDetailDrawerProps {
   card: BusinessCard | null;
   isOpen: boolean;
   onClose: () => void;
+  workspace: Workspace | null;
 }
 
-export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProps) {
+export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetailDrawerProps) {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState<ParsedData>({});
   const [memo, setMemo] = useState('');
 
   useEffect(() => {
     if (card) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(card.parsed_data || {});
-       
       setMemo(card.memo || '');
     }
   }, [card]);
@@ -48,8 +47,9 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
 
   if (!isOpen || !card) return null;
 
+  const axes = workspace?.axes ?? [];
+
   const handleUpdateField = (field: keyof ParsedData, value: string) => {
-    // Only trigger update if value changed
     if (value === formData[field]) return;
     const newData = { ...formData, [field]: value };
     setFormData(newData);
@@ -62,6 +62,11 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
     updateMutation.mutate({ memo: value });
   };
 
+  const handleAxisChange = (axisId: string) => {
+    const newAxis = axisId === '' ? null : axisId;
+    updateMutation.mutate({ axis: newAxis } as any);
+  };
+
   const handleDelete = () => {
     if (confirm('名刺をゴミ箱に移動しますか？')) {
       deleteMutation.mutate();
@@ -71,9 +76,7 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
   return (
     <>
       <div className="fixed inset-0 bg-black/10 z-40 transition-opacity" onClick={onClose} />
-      <div
-        className={`fixed top-0 right-0 h-full w-[400px] max-w-full bg-white shadow-xl z-50 flex flex-col`}
-      >
+      <div className="fixed top-0 right-0 h-full w-[400px] max-w-full bg-white shadow-xl z-50 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-[#eeeeee]">
           <h2 className="text-[16px] font-semibold text-gray-900">名刺詳細</h2>
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">
@@ -84,32 +87,54 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {/* Card Image */}
           <div className="bg-gray-50 rounded-lg overflow-hidden border border-[#eeeeee] flex items-center justify-center min-h-[220px]">
-             {card.image ? (
-               <img src={card.image} alt="名刺画像" className="object-contain w-full h-[220px]" />
-             ) : (
-               <span className="text-sm text-gray-400">画像なし</span>
-             )}
+            {card.image ? (
+              <img src={card.image} alt="名刺画像" className="object-contain w-full h-[220px]" />
+            ) : (
+              <span className="text-sm text-gray-400">画像なし</span>
+            )}
           </div>
+
+          {/* 事業軸の仕分け（事業軸が1つ以上ある場合） */}
+          {axes.length > 0 && (
+            <div className="space-y-1.5">
+              <label className="text-[12px] font-medium text-gray-500">事業軸</label>
+              <select
+                value={card.axis ?? ''}
+                onChange={(e) => handleAxisChange(e.target.value)}
+                className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded-md
+                           focus:outline-none focus:ring-1 focus:ring-[#6366f1] focus:border-transparent
+                           bg-white text-gray-700"
+              >
+                <option value="">未分類</option>
+                {axes.map(ax => (
+                  <option key={ax.id} value={ax.id}>{ax.axis_display}</option>
+                ))}
+              </select>
+              {updateMutation.isPending && (
+                <p className="text-[11px] text-gray-400">保存中...</p>
+              )}
+            </div>
+          )}
 
           {/* AI Analysis trigger */}
           {card.analysis_status !== 'done' && (
-             <div className="flex flex-col gap-2 p-3 bg-gray-50 rounded-md border border-gray-100">
-               <div className="flex items-center justify-between">
-                 <span className="text-[13px] font-medium text-gray-700">状態: 
-                   {card.analysis_status === 'pending' && <span className="text-gray-500 font-semibold ml-1">解析待ち</span>}
-                   {card.analysis_status === 'processing' && <span className="text-blue-500 font-semibold ml-1">解析中</span>}
-                   {card.analysis_status === 'failed' && <span className="text-red-500 font-semibold ml-1">解析失敗</span>}
-                 </span>
-                 <button 
-                   onClick={() => analyzeMutation.mutate()}
-                   disabled={analyzeMutation.isPending || card.analysis_status === 'processing'}
-                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-[12px] font-medium rounded text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                 >
-                   <RefreshCw className={`w-3.5 h-3.5 ${analyzeMutation.isPending ? 'animate-spin' : ''}`} />
-                   {analyzeMutation.isPending ? 'リクエスト中...' : '再解析する'}
-                 </button>
-               </div>
-             </div>
+            <div className="flex flex-col gap-2 p-3 bg-gray-50 rounded-md border border-gray-100">
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-medium text-gray-700">状態:
+                  {card.analysis_status === 'pending' && <span className="text-gray-500 font-semibold ml-1">解析待ち</span>}
+                  {card.analysis_status === 'processing' && <span className="text-blue-500 font-semibold ml-1">解析中</span>}
+                  {card.analysis_status === 'failed' && <span className="text-red-500 font-semibold ml-1">解析失敗</span>}
+                </span>
+                <button
+                  onClick={() => analyzeMutation.mutate()}
+                  disabled={analyzeMutation.isPending || card.analysis_status === 'processing'}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-[12px] font-medium rounded text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${analyzeMutation.isPending ? 'animate-spin' : ''}`} />
+                  {analyzeMutation.isPending ? 'リクエスト中...' : '再解析する'}
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Fields */}
@@ -124,7 +149,7 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
             <FieldInput label="Webサイト" value={formData.website} onBlur={(v) => handleUpdateField('website', v)} />
             <FieldInput label="部署" value={formData.department} onBlur={(v) => handleUpdateField('department', v)} />
             <FieldInput label="補足情報" value={formData.notes} onBlur={(v) => handleUpdateField('notes', v)} />
-            
+
             <div className="space-y-1.5">
               <label className="text-[12px] font-medium text-gray-500">メモ</label>
               <textarea
@@ -140,8 +165,8 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
 
         <div className="p-4 border-t border-[#eeeeee] flex justify-end">
           <button
-             onClick={handleDelete}
-             className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
           >
             <Trash2 className="w-4 h-4" />
             削除する
@@ -152,23 +177,13 @@ export function CardDetailDrawer({ card, isOpen, onClose }: CardDetailDrawerProp
   );
 }
 
-function FieldInput({ 
-  label, 
-  value, 
-  onBlur,
-  type = 'text'
-}: { 
-  label: string; 
-  value?: string; 
-  onBlur: (val: string) => void;
-  type?: string;
+function FieldInput({
+  label, value, onBlur, type = 'text'
+}: {
+  label: string; value?: string; onBlur: (val: string) => void; type?: string;
 }) {
   const [localVal, setLocalVal] = useState(value || '');
-  
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalVal(value || '');
-  }, [value]);
+  useEffect(() => { setLocalVal(value || ''); }, [value]);
 
   return (
     <div className="space-y-1.5">
