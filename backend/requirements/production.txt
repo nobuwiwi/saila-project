@@ -13,3 +13,5 @@ google-cloud-vision
 google-generativeai
 openai
 stripe
+boto3
+django-storages[boto3]
