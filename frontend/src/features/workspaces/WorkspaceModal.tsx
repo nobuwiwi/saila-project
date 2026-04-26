@@ -35,27 +35,45 @@ function EditForm({
 }) {
   const [description, setDescription] = useState(workspace.description);
   const [color, setColor] = useState(workspace.color);
-  const [selectedAxisIds, setSelectedAxisIds] = useState<string[]>(
-    workspace.axes?.map(a => a.id) ?? []
+  const [selectedAxes, setSelectedAxes] = useState<string[]>(
+    workspace.axes?.map(a => a.axis) ?? []
   );
   const [error, setError] = useState('');
 
-  // 全事業軸の選択肢を取得
+  // ユーザーの登録済み事業軸を取得（新規か既存かを判定するため）
   const { data: existingAxes = [] } = useQuery({
     queryKey: ['user-axes'],
     queryFn: axesApi.getUserAxes,
   });
 
-  const toggleAxis = (id: string) => {
-    setSelectedAxisIds(prev =>
-      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+  const toggleAxis = (val: string) => {
+    setSelectedAxes(prev =>
+      prev.includes(val) ? prev.filter(a => a !== val) : [...prev, val]
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit({ description: description.trim(), color, axis_ids: selectedAxisIds });
+      const existingAxisValues = existingAxes.map(a => a.axis);
+      
+      // 新規で追加された事業軸（ユーザーがまだ登録していないもの）をAPIで作成
+      const newAxes = selectedAxes.filter((a) => !existingAxisValues.includes(a));
+      const newAxisRecords: { id: string }[] = [];
+      for (const axis of newAxes) {
+        const record = await axesApi.addAxis(axis);
+        newAxisRecords.push(record);
+      }
+
+      // 選択済みの既存事業軸のIDを取得
+      const existingSelected = existingAxes.filter(a => selectedAxes.includes(a.axis));
+      
+      const axisIds = [
+        ...existingSelected.map(a => a.id),
+        ...newAxisRecords.map(a => a.id),
+      ];
+
+      await onSubmit({ description: description.trim(), color, axis_ids: axisIds });
       onClose();
     } catch {
       setError('保存に失敗しました。もう一度お試しください。');
@@ -88,32 +106,30 @@ function EditForm({
       </div>
 
       {/* 事業軸 */}
-      {existingAxes.length > 0 && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">事業軸</label>
-          <div className="grid grid-cols-1 gap-1.5 max-h-48 overflow-y-auto pr-0.5">
-            {existingAxes.map((ax) => {
-              const checked = selectedAxisIds.includes(ax.id);
-              return (
-                <label
-                  key={ax.id}
-                  className={`flex items-center gap-3 px-3 py-2.5 border rounded-md cursor-pointer transition-colors ${
-                    checked ? 'border-[#6366f1] bg-indigo-50/50' : 'border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="h-3.5 w-3.5 text-[#6366f1] border-gray-300 rounded focus:ring-[#6366f1]"
-                    checked={checked}
-                    onChange={() => toggleAxis(ax.id)}
-                  />
-                  <span className="text-sm text-gray-900">{ax.axis_display}</span>
-                </label>
-              );
-            })}
-          </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">事業軸</label>
+        <div className="grid grid-cols-1 gap-1.5 max-h-48 overflow-y-auto pr-0.5">
+          {BUSINESS_AXIS_CHOICES.map((choice) => {
+            const checked = selectedAxes.includes(choice.value);
+            return (
+              <label
+                key={choice.value}
+                className={`flex items-center gap-3 px-3 py-2.5 border rounded-md cursor-pointer transition-colors ${
+                  checked ? 'border-[#6366f1] bg-indigo-50/50' : 'border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5 text-[#6366f1] border-gray-300 rounded focus:ring-[#6366f1]"
+                  checked={checked}
+                  onChange={() => toggleAxis(choice.value)}
+                />
+                <span className="text-sm text-gray-900">{choice.label}</span>
+              </label>
+            );
+          })}
         </div>
-      )}
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">カラー</label>
@@ -515,6 +531,7 @@ export function WorkspaceModal({
 
         {workspace ? (
           <EditForm
+            key={workspace.id}
             workspace={workspace}
             onClose={onClose}
             onSubmit={onSubmit}
