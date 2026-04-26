@@ -49,3 +49,11 @@ class BusinessCard(SoftDeleteModel):
     def __str__(self):
         name = self.parsed_data.get('full_name') or self.parsed_data.get('company_name') or '（未解析）'
         return f'{name} [{self.workspace.name}]'
+
+    def hard_delete(self, using=None, keep_parents=False):
+        """物理削除時にS3の画像ファイルも完全に削除する"""
+        if self.image:
+            self.image.delete(save=False)
+        if self.thumbnail:
+            self.thumbnail.delete(save=False)
+        super().hard_delete(using=using, keep_parents=keep_parents)
