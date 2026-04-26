@@ -117,6 +117,25 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
         card.delete()  # SoftDeleteModel.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def perform_update(self, serializer):
+        user = self.request.user
+        
+        # workspace が変更される場合、自分のものかチェック
+        if 'workspace' in serializer.validated_data:
+            workspace = serializer.validated_data['workspace']
+            if workspace.owner != user:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("他人のワークスペースに名刺を移動することはできません。")
+                
+        # axis が変更される場合、自分のものかチェック
+        if 'axis' in serializer.validated_data and serializer.validated_data['axis']:
+            axis = serializer.validated_data['axis']
+            if axis.owner != user:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied("無効な事業軸です。")
+
+        serializer.save()
+
     # ---------- カスタムアクション ----------
 
     @action(detail=False, methods=['get'], url_path='trash')

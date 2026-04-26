@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Trash2, RefreshCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cardsApi } from '../../api/cards';
+import { useWorkspaceStore } from '../../store/workspaceStore';
 import type { BusinessCard, ParsedData, Workspace } from '../../types';
 
 interface CardDetailDrawerProps {
@@ -13,6 +14,7 @@ interface CardDetailDrawerProps {
 
 export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetailDrawerProps) {
   const queryClient = useQueryClient();
+  const { workspaces } = useWorkspaceStore();
   const [formData, setFormData] = useState<ParsedData>({});
   const [memo, setMemo] = useState('');
 
@@ -67,6 +69,14 @@ export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetai
     updateMutation.mutate({ axis: newAxis } as any);
   };
 
+  const handleWorkspaceChange = (newWorkspaceId: string) => {
+    if (newWorkspaceId === card.workspace) return;
+    if (confirm('名刺を別のワークスペースに移動しますか？\n（現在設定されている事業軸は解除されます）')) {
+      updateMutation.mutate({ workspace: newWorkspaceId, axis: null } as any);
+      onClose();
+    }
+  };
+
   const handleDelete = () => {
     if (confirm('名刺をゴミ箱に移動しますか？')) {
       deleteMutation.mutate();
@@ -92,6 +102,24 @@ export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetai
             ) : (
               <span className="text-sm text-gray-400">画像なし</span>
             )}
+          </div>
+
+          {/* ワークスペース移動 */}
+          <div className="space-y-1.5">
+            <label className="text-[12px] font-medium text-gray-500">ワークスペース</label>
+            <select
+              value={card.workspace}
+              onChange={(e) => handleWorkspaceChange(e.target.value)}
+              className="w-full px-3 py-2 text-[13px] border border-gray-200 rounded-md
+                         focus:outline-none focus:ring-1 focus:ring-[#6366f1] focus:border-transparent
+                         bg-white text-gray-700"
+            >
+              {workspaces.map((ws) => (
+                <option key={ws.id} value={ws.id}>
+                  {ws.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* 事業軸の仕分け（事業軸が1つ以上ある場合） */}
