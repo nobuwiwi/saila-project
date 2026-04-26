@@ -35,12 +35,27 @@ function EditForm({
 }) {
   const [description, setDescription] = useState(workspace.description);
   const [color, setColor] = useState(workspace.color);
+  const [selectedAxisIds, setSelectedAxisIds] = useState<string[]>(
+    workspace.axes?.map(a => a.id) ?? []
+  );
   const [error, setError] = useState('');
+
+  // 全事業軸の選択肢を取得
+  const { data: existingAxes = [] } = useQuery({
+    queryKey: ['user-axes'],
+    queryFn: axesApi.getUserAxes,
+  });
+
+  const toggleAxis = (id: string) => {
+    setSelectedAxisIds(prev =>
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await onSubmit({ description: description.trim(), color });
+      await onSubmit({ description: description.trim(), color, axis_ids: selectedAxisIds });
       onClose();
     } catch {
       setError('保存に失敗しました。もう一度お試しください。');
@@ -71,6 +86,34 @@ function EditForm({
           rows={3}
         />
       </div>
+
+      {/* 事業軸 */}
+      {existingAxes.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">事業軸</label>
+          <div className="grid grid-cols-1 gap-1.5 max-h-48 overflow-y-auto pr-0.5">
+            {existingAxes.map((ax) => {
+              const checked = selectedAxisIds.includes(ax.id);
+              return (
+                <label
+                  key={ax.id}
+                  className={`flex items-center gap-3 px-3 py-2.5 border rounded-md cursor-pointer transition-colors ${
+                    checked ? 'border-[#6366f1] bg-indigo-50/50' : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="h-3.5 w-3.5 text-[#6366f1] border-gray-300 rounded focus:ring-[#6366f1]"
+                    checked={checked}
+                    onChange={() => toggleAxis(ax.id)}
+                  />
+                  <span className="text-sm text-gray-900">{ax.axis_display}</span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">カラー</label>
