@@ -76,7 +76,7 @@ export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetai
   return (
     <>
       <div className="fixed inset-0 bg-black/10 z-40 transition-opacity" onClick={onClose} />
-      <div className="fixed top-0 right-0 h-full w-[400px] max-w-full bg-white shadow-xl z-50 flex flex-col">
+      <div className="fixed top-0 right-0 h-full w-full md:w-[400px] max-w-full bg-white shadow-xl z-50 flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-[#eeeeee]">
           <h2 className="text-[16px] font-semibold text-gray-900">名刺詳細</h2>
           <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">

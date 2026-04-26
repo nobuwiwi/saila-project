@@ -159,72 +159,117 @@ function AxisSection({
           </p>
         </div>
       ) : (
-        <div className="overflow-auto">
-          <table className="w-full text-left border-collapse min-w-max">
-            <thead className="bg-[#f7f7f8] sticky top-0 z-10 border-b border-[#eeeeee]">
-              <tr>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-16">画像</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">会社名</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">氏名</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">役職</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">電話番号</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">メールアドレス</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-24">状態</th>
-                <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-28 text-right">登録日</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#eeeeee]">
-              {cards.map((card) => (
-                <tr
-                  key={card.id}
-                  onClick={() => onRowClick(card)}
-                  className="group hover:bg-[#fcfcff] cursor-pointer transition-colors"
-                >
-                  <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
-                    {card.thumbnail ? (
-                      <div className="relative group/thumb w-12 h-8">
-                        <img src={card.thumbnail} alt="thumbnail" className="w-full h-full object-cover rounded shadow-sm border border-gray-200" />
-                        <div className="hidden group-hover/thumb:block absolute top-[110%] left-[-20%] z-50 p-1 bg-white border border-gray-200 shadow-xl rounded-lg pointer-events-none">
-                          <img src={card.image ?? card.thumbnail} alt="preview" className="w-[300px] max-w-none object-contain rounded-md" />
-                        </div>
+        <>
+          {/* モバイル用カードリスト表示 */}
+          <div className="md:hidden divide-y divide-[#eeeeee]">
+            {cards.map(card => (
+              <div 
+                key={card.id} 
+                onClick={() => onRowClick(card)} 
+                className="p-4 flex gap-3 cursor-pointer hover:bg-[#fcfcff] transition-colors"
+              >
+                {/* 画像 */}
+                <div className="shrink-0 pt-1">
+                  {card.thumbnail ? (
+                    <img src={card.thumbnail} alt="thumbnail" className="w-14 h-14 object-cover rounded shadow-sm border border-gray-200" />
+                  ) : (
+                    <div className="w-14 h-14 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                      <span className="text-[10px] text-gray-400 text-center leading-tight">No Img</span>
+                    </div>
+                  )}
+                </div>
+                {/* 情報 */}
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[11px] text-gray-500 truncate mb-0.5">
+                        {card.parsed_data?.company_name || <span className="text-gray-300">会社名未設定</span>}
                       </div>
-                    ) : (
-                      <div className="w-12 h-8 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
-                        <span className="text-[10px] text-gray-400">No Img</span>
+                      <div className="text-[14px] font-semibold text-gray-900 truncate">
+                        {card.parsed_data?.full_name || <span className="text-gray-300">氏名未設定</span>}
                       </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-[13px] text-gray-900 truncate max-w-[150px]">
-                    <EditableCell value={card.parsed_data?.company_name}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, company_name: val } })} />
-                  </td>
-                  <td className="px-4 py-3 text-[13px] font-medium text-gray-900 truncate max-w-[120px]">
-                    <EditableCell value={card.parsed_data?.full_name}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, full_name: val } })} />
-                  </td>
-                  <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
-                    <EditableCell value={card.parsed_data?.title}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, title: val } })} />
-                  </td>
-                  <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
-                    <EditableCell value={card.parsed_data?.phone || card.parsed_data?.mobile}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, phone: val } })} />
-                  </td>
-                  <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[150px]">
-                    <EditableCell value={card.parsed_data?.email}
-                      onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, email: val } })} />
-                  </td>
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                    <StatusBadge status={card.analysis_status} />
-                  </td>
-                  <td className="px-4 py-3 text-[12px] text-gray-400 text-right whitespace-nowrap">
-                    {new Date(card.created_at).toLocaleDateString()}
-                  </td>
+                    </div>
+                    <div className="shrink-0 mt-0.5">
+                      <StatusBadge status={card.analysis_status} />
+                    </div>
+                  </div>
+                  <div className="text-[12px] text-gray-500 flex flex-col gap-0.5">
+                    <span className="truncate">{card.parsed_data?.title || <span className="text-transparent">-</span>}</span>
+                    <span className="truncate">{card.parsed_data?.email || <span className="text-transparent">-</span>}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* デスクトップ用テーブル表示 */}
+          <div className="hidden md:block overflow-auto">
+            <table className="w-full text-left border-collapse min-w-max">
+              <thead className="bg-[#f7f7f8] sticky top-0 z-10 border-b border-[#eeeeee]">
+                <tr>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-16">画像</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">会社名</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">氏名</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">役職</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">電話番号</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">メールアドレス</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-24">状態</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-28 text-right">登録日</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-[#eeeeee]">
+                {cards.map((card) => (
+                  <tr
+                    key={card.id}
+                    onClick={() => onRowClick(card)}
+                    className="group hover:bg-[#fcfcff] cursor-pointer transition-colors"
+                  >
+                    <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
+                      {card.thumbnail ? (
+                        <div className="relative group/thumb w-12 h-8">
+                          <img src={card.thumbnail} alt="thumbnail" className="w-full h-full object-cover rounded shadow-sm border border-gray-200" />
+                          <div className="hidden group-hover/thumb:block absolute top-[110%] left-[-20%] z-50 p-1 bg-white border border-gray-200 shadow-xl rounded-lg pointer-events-none">
+                            <img src={card.image ?? card.thumbnail} alt="preview" className="w-[300px] max-w-none object-contain rounded-md" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-12 h-8 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                          <span className="text-[10px] text-gray-400">No Img</span>
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-gray-900 truncate max-w-[150px]">
+                      <EditableCell value={card.parsed_data?.company_name}
+                        onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, company_name: val } })} />
+                    </td>
+                    <td className="px-4 py-3 text-[13px] font-medium text-gray-900 truncate max-w-[120px]">
+                      <EditableCell value={card.parsed_data?.full_name}
+                        onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, full_name: val } })} />
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
+                      <EditableCell value={card.parsed_data?.title}
+                        onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, title: val } })} />
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[120px]">
+                      <EditableCell value={card.parsed_data?.phone || card.parsed_data?.mobile}
+                        onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, phone: val } })} />
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-gray-500 truncate max-w-[150px]">
+                      <EditableCell value={card.parsed_data?.email}
+                        onSave={(val) => onUpdate(card.id, { parsed_data: { ...card.parsed_data, email: val } })} />
+                    </td>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <StatusBadge status={card.analysis_status} />
+                    </td>
+                    <td className="px-4 py-3 text-[12px] text-gray-400 text-right whitespace-nowrap">
+                      {new Date(card.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

@@ -131,9 +131,9 @@ export function CardUploadModal({ isOpen, onClose, workspace, onUpgradeRequired 
   const canUpload = user?.can_add_card !== false;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-black/20 z-50 transition-opacity" onClick={!isUploading ? onClose : undefined} />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] bg-white rounded-xl shadow-xl z-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black/20 transition-opacity" onClick={!isUploading ? onClose : undefined} />
+      <div className="relative w-full max-w-[500px] bg-white rounded-xl shadow-xl flex flex-col overflow-hidden max-h-full">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#eeeeee]">
           <div>
             <h2 className="text-[16px] font-semibold text-gray-900">名刺を追加</h2>
@@ -238,6 +238,6 @@ export function CardUploadModal({ isOpen, onClose, workspace, onUpgradeRequired 
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

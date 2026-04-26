@@ -112,6 +112,7 @@ export function Layout() {
   const [upgradeModalMessage, setUpgradeModalMessage] = useState('');
   const [editingWorkspace, setEditingWorkspace] = useState<Workspace | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // ワークスペース一覧を取得してStoreに同期
   const { isLoading } = useQuery({
@@ -185,14 +186,31 @@ export function Layout() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f7f8]">
+      {/* モバイル用オーバーレイ */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-30 md:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* ===== サイドバー ===== */}
       <aside
-        className="flex flex-col shrink-0 bg-white border-r border-[#eeeeee]"
-        style={{ width: 240 }}
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col shrink-0 bg-white border-r border-[#eeeeee]
+                    transform transition-transform duration-200 ease-in-out w-[240px]
+                    md:relative md:translate-x-0 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* ロゴ */}
-        <div className="px-5 py-4 border-b border-[#eeeeee]">
+        <div className="px-5 py-4 border-b border-[#eeeeee] flex items-center justify-between">
           <span className="text-[15px] font-semibold text-gray-900 tracking-tight">Saila</span>
+          <button 
+            className="md:hidden p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         {/* ワークスペース一覧 */}
@@ -212,9 +230,10 @@ export function Layout() {
               isSelected={selectedWorkspaceId === ws.id && !isTrash}
               onSelect={() => {
                 selectWorkspace(ws.id);
+                setMobileMenuOpen(false);
                 navigate('/cards');
               }}
-              onEdit={(ws) => { setEditingWorkspace(ws); setModalOpen(true); }}
+              onEdit={(ws) => { setEditingWorkspace(ws); setModalOpen(true); setMobileMenuOpen(false); }}
               onDelete={handleDelete}
             />
           ))}
@@ -222,7 +241,7 @@ export function Layout() {
           {/* + ワークスペースを追加 */}
           <button
             id="add-workspace-btn"
-            onClick={() => { setEditingWorkspace(null); setModalOpen(true); }}
+            onClick={() => { setEditingWorkspace(null); setModalOpen(true); setMobileMenuOpen(false); }}
             className="w-full text-left px-3 py-2 mt-1 text-[13px] text-gray-400
                        hover:text-gray-700 hover:bg-[#f9f9f9] rounded-md transition-colors"
           >
@@ -234,7 +253,7 @@ export function Layout() {
         <div className="border-t border-[#eeeeee] px-3 py-3 space-y-0.5">
           {/* ゴミ箱 */}
           <button
-            onClick={() => navigate('/trash')}
+            onClick={() => { navigate('/trash'); setMobileMenuOpen(false); }}
             className={`w-full flex items-center gap-2 px-3 py-2 rounded-md text-[13px]
                         transition-colors ${isTrash ? 'bg-[#f5f5f5] text-gray-900' : 'text-gray-500 hover:bg-[#f9f9f9] hover:text-gray-800'}`}
           >
@@ -246,7 +265,7 @@ export function Layout() {
           </button>
 
           {/* ユーザー・ログアウト */}
-          <div className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer group" onClick={() => setSettingsModalOpen(true)}>
+          <div className="flex items-center justify-between px-3 py-2 rounded-md hover:bg-gray-50 transition-colors cursor-pointer group" onClick={() => { setSettingsModalOpen(true); setMobileMenuOpen(false); }}>
             <div className="flex flex-col min-w-0 pr-2">
                <span className="text-[12px] font-medium text-gray-700 truncate max-w-[130px]">
                  {user?.display_name || user?.email}
@@ -264,9 +283,18 @@ export function Layout() {
       </aside>
 
       {/* ===== 右エリア（ヘッダー + メイン） ===== */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         {/* ヘッダー */}
-        <header className="shrink-0 bg-white border-b border-[#eeeeee] h-14 flex items-center px-6 gap-4">
+        <header className="shrink-0 bg-white border-b border-[#eeeeee] h-14 flex items-center px-4 md:px-6 gap-3 md:gap-4">
+          <button 
+            className="md:hidden p-1.5 -ml-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+          
           {/* カラーアクセント＋ワークスペース名 */}
           <div className="flex items-center gap-2.5 flex-1 min-w-0">
             {currentWs && !isTrash && (
@@ -283,7 +311,7 @@ export function Layout() {
         </header>
 
         {/* メインコンテンツ（Outlet） */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 relative">
           <Outlet context={{
             selectedWorkspace: currentWs,
             onUpgradeRequired: (message: string) => {
