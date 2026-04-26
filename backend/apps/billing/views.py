@@ -86,11 +86,10 @@ class StripeWebhookView(APIView):
                 logger.warning("Invalid signature for Stripe webhook")
                 return Response(status=400)
 
-            # Handle the event
             if event['type'] == 'checkout.session.completed':
                 session = event['data']['object']
-                client_reference_id = getattr(session, 'client_reference_id', None)
-                customer_id = getattr(session, 'customer', None)
+                client_reference_id = session.get('client_reference_id')
+                customer_id = session.get('customer')
                 
                 if client_reference_id:
                     from apps.accounts.models import User
@@ -106,9 +105,9 @@ class StripeWebhookView(APIView):
 
             elif event['type'] in ['customer.subscription.deleted', 'customer.subscription.updated']:
                 subscription = event['data']['object']
-                customer_id = getattr(subscription, 'customer', None)
-                status = getattr(subscription, 'status', None)
-                cancel_at_period_end = getattr(subscription, 'cancel_at_period_end', False)
+                customer_id = subscription.get('customer')
+                status = subscription.get('status')
+                cancel_at_period_end = subscription.get('cancel_at_period_end', False)
                 
                 if customer_id:
                     from apps.accounts.models import User
