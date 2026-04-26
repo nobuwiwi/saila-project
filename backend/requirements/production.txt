@@ -10,7 +10,7 @@ Pillow
 celery
 redis
 google-cloud-vision
-google-generativeai
+google-genai
 openai
 stripe
 boto3

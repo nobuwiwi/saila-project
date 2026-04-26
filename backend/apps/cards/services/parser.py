@@ -41,15 +41,21 @@ def parse_business_card(ocr_text: str) -> dict:
         raise Exception(f"LLM parsing failed: {e}")
 
 def _parse_with_gemini(prompt: str) -> dict:
-    import google.generativeai as genai
+    from google import genai
+    from google.genai import types
     api_key = os.environ.get('GEMINI_API_KEY')
     if not api_key:
         raise ValueError("GEMINI_API_KEY is not set.")
     
-    genai.configure(api_key=api_key)
-    # 応答の安定性のため gemini-1.5-flash または gemini-1.5-pro を使用
-    model = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
-    response = model.generate_content(prompt)
+    client = genai.Client(api_key=api_key)
+    # 応答の安定性のため gemini-2.0-flash を使用
+    response = client.models.generate_content(
+        model='gemini-2.0-flash',
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        )
+    )
     
     return _extract_json(response.text)
 
