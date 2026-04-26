@@ -10,13 +10,14 @@ interface CardUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
   workspace: Workspace;
+  axisId?: string | null;
   onUpgradeRequired?: (message: string) => void;
 }
 
 const MAX_FILES = 10;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/heic'];
 
-export function CardUploadModal({ isOpen, onClose, workspace, onUpgradeRequired }: CardUploadModalProps) {
+export function CardUploadModal({ isOpen, onClose, workspace, axisId, onUpgradeRequired }: CardUploadModalProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
@@ -101,6 +102,9 @@ export function CardUploadModal({ isOpen, onClose, workspace, onUpgradeRequired 
           const formData = new FormData();
           formData.append('workspace', workspace.id);
           formData.append('image', fileToUpload);
+          if (axisId) {
+            formData.append('axis', axisId);
+          }
 
           await cardsApi.createCard(formData);
         } catch (err: any) {

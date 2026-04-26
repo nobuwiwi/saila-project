@@ -5,7 +5,6 @@ import { workspacesApi } from '../api/workspaces';
 import { useAuthStore } from '../store/authStore';
 import { useWorkspaceStore } from '../store/workspaceStore';
 import { WorkspaceModal } from '../features/workspaces/WorkspaceModal';
-import { CardUploadModal } from '../features/cards/CardUploadModal';
 import { UpgradeModal } from '../features/billing/UpgradeModal';
 import { SettingsModal } from '../features/auth/SettingsModal';
 import type { Workspace, WorkspaceCreateInput } from '../types';
@@ -108,7 +107,6 @@ export function Layout() {
   } = useWorkspaceStore();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [upgradeModalMessage, setUpgradeModalMessage] = useState('');
@@ -282,24 +280,17 @@ export function Layout() {
             </h1>
           </div>
 
-          {/* 名刺を追加ボタン */}
-          {!isTrash && currentWs && (
-            <button
-              id="add-card-btn"
-              onClick={() => setUploadModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#6366f1] text-white
-                         text-[13px] font-medium rounded-md hover:bg-[#5254cc] active:bg-[#4748b8]
-                         transition-colors focus:outline-none focus:ring-2 focus:ring-[#6366f1] focus:ring-offset-2"
-            >
-              <span className="text-base leading-none">+</span>
-              <span>名刺を追加</span>
-            </button>
-          )}
         </header>
 
         {/* メインコンテンツ（Outlet） */}
         <main className="flex-1 overflow-y-auto p-6">
-          <Outlet context={{ selectedWorkspace: currentWs }} />
+          <Outlet context={{
+            selectedWorkspace: currentWs,
+            onUpgradeRequired: (message: string) => {
+              setUpgradeModalMessage(message);
+              setUpgradeModalOpen(true);
+            },
+          }} />
         </main>
       </div>
 
@@ -311,20 +302,6 @@ export function Layout() {
         workspace={editingWorkspace}
         isLoading={isSubmitting}
       />
-
-      {/* 名刺アップロードモーダル */}
-      {currentWs && (
-        <CardUploadModal
-          isOpen={uploadModalOpen}
-          onClose={() => setUploadModalOpen(false)}
-          workspace={currentWs}
-          onUpgradeRequired={(message) => {
-             setUploadModalOpen(false);
-             setUpgradeModalMessage(message);
-             setUpgradeModalOpen(true);
-          }}
-        />
-      )}
 
       {/* アップグレードモーダル */}
       <UpgradeModal

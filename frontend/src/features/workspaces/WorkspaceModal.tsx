@@ -161,15 +161,26 @@ function CreateWizard({
   const handleFinish = async () => {
     setError('');
     try {
-      // 新規事業軸（未登録のもの）を保存
+      // 新規事業軸（未登録のもの）を保存し、IDを収集
       const newAxes = selectedAxes.filter((a) => !existingAxisValues.includes(a));
+      const newAxisRecords: { id: string }[] = [];
       for (const axis of newAxes) {
-        await axesApi.addAxis(axis);
+        const record = await axesApi.addAxis(axis);
+        newAxisRecords.push(record);
       }
+
+      // 選択済みの既存事業軸のIDも含める
+      const existingSelected = existingAxes.filter(a => selectedAxes.includes(a.axis) || existingAxisValues.includes(a.axis));
+      const axisIds = [
+        ...existingSelected.map(a => a.id),
+        ...newAxisRecords.map(a => a.id),
+      ];
+
       await onSubmit({
         company_name: companyName.trim(),
         relation_type: relationType,
         color,
+        axis_ids: axisIds,
       });
       onClose();
     } catch {

@@ -10,6 +10,7 @@ class BusinessCardListSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'workspace',
+            'axis',
             'analysis_status',
             'parsed_data',
             'image',
@@ -30,6 +31,7 @@ class BusinessCardDetailSerializer(serializers.ModelSerializer):
             'id',
             'workspace',
             'owner',
+            'axis',
             'image',
             'thumbnail',
             'analysis_status',

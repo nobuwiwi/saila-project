@@ -91,6 +91,14 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
             'workspace': workspace,
             'analysis_status': 'pending'
         }
+        
+        axis_id = self.request.data.get('axis')
+        if axis_id:
+            from apps.axes.models import UserBusinessAxis
+            axis = UserBusinessAxis.objects.filter(id=axis_id, owner=user).first()
+            if axis:
+                save_kwargs['axis'] = axis
+
         if main_image_content and main_filename:
             save_kwargs['image'] = main_image_content
 

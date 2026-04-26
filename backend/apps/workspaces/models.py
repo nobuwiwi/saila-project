@@ -37,6 +37,7 @@ class Workspace(models.Model):
     color = models.CharField(max_length=7, default='#6366f1')
     is_default = models.BooleanField(default=False)
     sort_order = models.PositiveIntegerField(default=0)
+    axes = models.ManyToManyField('axes.UserBusinessAxis', related_name='workspaces', blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

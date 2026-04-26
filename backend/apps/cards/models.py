@@ -26,6 +26,13 @@ class BusinessCard(SoftDeleteModel):
         on_delete=models.CASCADE,
         related_name='cards',
     )
+    axis = models.ForeignKey(
+        'axes.UserBusinessAxis',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='cards',
+    )
 
     image = models.ImageField(upload_to='cards/images/', blank=True)
     thumbnail = models.ImageField(upload_to='cards/thumbnails/', blank=True)

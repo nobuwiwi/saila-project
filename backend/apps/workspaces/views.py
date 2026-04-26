@@ -28,7 +28,23 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
         # 最初のワークスペースは自動的にデフォルトにする
         is_first = not Workspace.objects.filter(owner=user).exists()
-        serializer.save(owner=user, is_default=is_first)
+        
+        axis_ids = serializer.validated_data.pop('axis_ids', [])
+        workspace = serializer.save(owner=user, is_default=is_first)
+        
+        if axis_ids:
+            from apps.axes.models import UserBusinessAxis
+            axes = UserBusinessAxis.objects.filter(id__in=axis_ids, owner=user)
+            workspace.axes.set(axes)
+
+    def perform_update(self, serializer):
+        axis_ids = serializer.validated_data.pop('axis_ids', None)
+        workspace = serializer.save()
+        
+        if axis_ids is not None:
+            from apps.axes.models import UserBusinessAxis
+            axes = UserBusinessAxis.objects.filter(id__in=axis_ids, owner=self.request.user)
+            workspace.axes.set(axes)
 
     @action(detail=True, methods=['post'], url_path='set_default')
     def set_default(self, request, pk=None):

@@ -62,6 +62,7 @@ export interface Workspace {
   is_default: boolean;
   sort_order: number;
   card_count: number;
+  axes: { id: string; axis: string; axis_display: string }[];
   created_at: string;
   updated_at: string;
 }
@@ -73,6 +74,7 @@ export interface WorkspaceCreateInput {
   description?: string;
   icon?: string;
   color?: string;
+  axis_ids?: string[];
 }
 
 export interface WorkspaceUpdateInput {
@@ -83,6 +85,7 @@ export interface WorkspaceUpdateInput {
   icon?: string;
   color?: string;
   sort_order?: number;
+  axis_ids?: string[];
 }
 
 // ==================== Business Card ====================
@@ -103,6 +106,7 @@ export interface BusinessCard {
   id: string;
   workspace: string; // workspace ID
   owner: string; // user ID
+  axis?: string | null; // axis ID
   image: string | null;
   thumbnail: string | null;
   analysis_status: 'pending' | 'processing' | 'done' | 'failed';
