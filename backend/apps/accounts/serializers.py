@@ -6,15 +6,19 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     can_add_card = serializers.SerializerMethodField()
+    can_add_workspace = serializers.SerializerMethodField()
     is_trial_active = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at', 'can_add_card', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end', 'onboarding_done')
-        read_only_fields = ('id', 'email', 'trial_started_at', 'created_at', 'can_add_card', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end')
+        fields = ('id', 'email', 'display_name', 'avatar_url', 'trial_started_at', 'created_at', 'can_add_card', 'can_add_workspace', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end')
+        read_only_fields = ('id', 'email', 'trial_started_at', 'created_at', 'can_add_card', 'can_add_workspace', 'is_pro', 'is_trial_active', 'pro_cancel_at_period_end')
 
     def get_can_add_card(self, obj):
         return obj.can_add_card()
+
+    def get_can_add_workspace(self, obj):
+        return obj.can_add_workspace()
 
     def get_is_trial_active(self, obj):
         return obj.is_trial_active()

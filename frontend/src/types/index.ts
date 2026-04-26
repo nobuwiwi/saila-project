@@ -12,7 +12,6 @@ export interface User {
   is_pro: boolean;
   is_trial_active: boolean;
   pro_cancel_at_period_end?: boolean;
-  onboarding_done: boolean;
 }
 
 // ==================== Constants ====================

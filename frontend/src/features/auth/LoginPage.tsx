@@ -31,11 +31,7 @@ export const LoginPage: React.FC = () => {
       setIsLoading(true);
       const res = await authApi.login(email, password);
       login(res.user, res.tokens.access, res.tokens.refresh);
-      if (res.user.onboarding_done) {
-        navigate('/cards');
-      } else {
-        navigate('/onboarding');
-      }
+      navigate('/cards');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'ログインに失敗しました。メールアドレスとパスワードを確認してください。');
     } finally {
