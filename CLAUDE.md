@@ -130,7 +130,6 @@ stripe_customer_id  StripeカスタマーID（空白可）
 pro_started_at   Pro開始日時（null=True）
 is_active        アクティブフラグ
 is_staff         管理者フラグ
-onboarding_done  オンボーディング完了フラグ（default=False）
 created_at / updated_at
 ```
 
@@ -270,10 +269,9 @@ created_at
 
 ### ルーティング
 ```
-/              → /cards にリダイレクト（未オンボーディング時は /onboarding）
+/              → 認証状態に応じて /cards または /login にリダイレクト
 /login         → ログイン画面
 /register      → 登録画面
-/onboarding    → PrivateRoute + OnboardingPage（初期設定ウィザード）
 /cards         → PrivateRoute + Layout + CardTablePage
 /trash         → PrivateRoute + Layout + TrashPage
 /billing/success → 決済完了画面（STEP 12で追加）
@@ -484,7 +482,7 @@ startCommand = ""
 ### フェーズ2：認証・初期設定
 - **[x] STEP 3** メール＋パスワード認証バックエンド ✅
 - **[x] STEP 4** ログイン・登録画面（React）✅
-- **[x] STEP 4.5** オンボーディングフロー（事業軸・立場・ワークスペース初期設定）✅
+- **[x] STEP 4.5** ワークスペース追加ウィザード（会社名・関係性・事業軸・カラー設定）✅
 
 ### フェーズ3：コア機能
 - **[x] STEP 5** ワークスペースAPI ✅
