@@ -40,10 +40,17 @@ function WorkspaceItem({
         <span className="flex-1 flex items-center justify-between px-3 py-2.5">
           <span className="flex flex-col min-w-0">
             <span
-              className={`text-[13px] font-medium truncate leading-snug
+              className={`flex flex-col truncate leading-snug
                           ${isSelected ? 'text-gray-900' : 'text-gray-700'}`}
             >
-              {workspace.name}
+              <span className="text-[13px] font-medium truncate">
+                {workspace.name.split('｜')[0]}
+              </span>
+              {workspace.name.split('｜').length > 1 && (
+                <span className="text-[10px] font-normal text-gray-500 truncate mt-0.5">
+                  {workspace.name.split('｜')[1]}
+                </span>
+              )}
             </span>
             <span className="text-[11px] text-gray-400 mt-0.5">{workspace.card_count} 枚</span>
           </span>
@@ -303,8 +310,23 @@ export function Layout() {
                 style={{ backgroundColor: currentWs.color }}
               />
             )}
-            <h1 className="text-[15px] font-semibold text-gray-900 truncate">
-              {isTrash ? 'ゴミ箱' : (currentWs?.name ?? '—')}
+            <h1 className="flex flex-col leading-tight overflow-hidden">
+              {isTrash ? (
+                <span className="text-[15px] font-semibold text-gray-900 truncate">ゴミ箱</span>
+              ) : currentWs ? (
+                <>
+                  <span className="text-[15px] font-semibold text-gray-900 truncate">
+                    {currentWs.name.split('｜')[0]}
+                  </span>
+                  {currentWs.name.split('｜').length > 1 && (
+                    <span className="text-[11px] font-normal text-gray-500 truncate">
+                      {currentWs.name.split('｜')[1]}
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className="text-[15px] font-semibold text-gray-900 truncate">—</span>
+              )}
             </h1>
           </div>
 
