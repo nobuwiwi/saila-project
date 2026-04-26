@@ -12,6 +12,7 @@ class BusinessCardListSerializer(serializers.ModelSerializer):
             'workspace',
             'analysis_status',
             'parsed_data',
+            'image',
             'thumbnail',
             'memo',
             'created_at',

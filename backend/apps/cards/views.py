@@ -51,6 +51,9 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
         image_obj = self.request.data.get('image')
         thumbnail_content = None
         thumb_filename = None
+        main_image_content = None
+        main_filename = None
+        
         if image_obj:
             try:
                 from PIL import Image, ImageOps
@@ -63,21 +66,35 @@ class BusinessCardViewSet(viewsets.ModelViewSet):
                 if img.mode in ('RGBA', 'P'):
                     img = img.convert('RGB')
                 
-                img.thumbnail((200, 120), Image.Resampling.LANCZOS)
-                
-                thumb_io = BytesIO()
-                img.save(thumb_io, format='JPEG', quality=85)
-                # Use original name with .jpg
                 try:
                     name_base = image_obj.name.rsplit('.', 1)[0]
                 except AttributeError:
                     name_base = 'uploaded'
+                    
+                # Save transposed main image
+                main_io = BytesIO()
+                img.save(main_io, format='JPEG', quality=85)
+                main_filename = f"{name_base}.jpg"
+                main_image_content = ContentFile(main_io.getvalue(), name=main_filename)
+                
+                # Save thumbnail
+                img.thumbnail((200, 120), Image.Resampling.LANCZOS)
+                thumb_io = BytesIO()
+                img.save(thumb_io, format='JPEG', quality=85)
                 thumb_filename = f"thumb_{name_base}.jpg"
                 thumbnail_content = ContentFile(thumb_io.getvalue(), name=thumb_filename)
             except Exception as e:
                 pass
 
-        card = serializer.save(owner=user, workspace=workspace, analysis_status='pending')
+        save_kwargs = {
+            'owner': user,
+            'workspace': workspace,
+            'analysis_status': 'pending'
+        }
+        if main_image_content and main_filename:
+            save_kwargs['image'] = main_image_content
+
+        card = serializer.save(**save_kwargs)
         if thumbnail_content and thumb_filename:
             card.thumbnail.save(thumb_filename, thumbnail_content, save=True)
 
