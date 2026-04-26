@@ -48,9 +48,9 @@ def _parse_with_gemini(prompt: str) -> dict:
         raise ValueError("GEMINI_API_KEY is not set.")
     
     client = genai.Client(api_key=api_key)
-    # 応答の安定性のため gemini-2.0-flash を使用
+    # 応答の安定性のため gemini-2.5-flash を使用
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-2.5-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
