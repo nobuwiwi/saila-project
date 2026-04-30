@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
         count = cards_to_purge.count()
 
-        if options['dry-run']:
+        if options['dry_run']:
             self.stdout.write(self.style.WARNING(f"削除対象: {count}件（dry-run）"))
         else:
             if count > 0:
