@@ -79,6 +79,9 @@ class StripeWebhookView(APIView):
                 event = stripe.Webhook.construct_event(
                     payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
                 )
+                # 新しいStripe SDK（v7+）はStripeObjectを返すため辞書に変換する
+                if hasattr(event, 'to_dict'):
+                    event = event.to_dict()
             except ValueError as e:
                 logger.warning("Invalid payload for Stripe webhook")
                 return Response(status=400)
@@ -108,26 +111,69 @@ class StripeWebhookView(APIView):
                 customer_id = subscription.get('customer')
                 status = subscription.get('status')
                 cancel_at_period_end = subscription.get('cancel_at_period_end', False)
-                
+                # 新しいbilling_mode:flexibleではcancel_atに日時が入る（cancel_at_period_endはfalseのまま）
+                cancel_at = subscription.get('cancel_at')
+                is_scheduled_for_cancellation = cancel_at_period_end or (cancel_at is not None)
+
+                logger.info(
+                    f"[Webhook] {event['type']} received: "
+                    f"customer_id={customer_id}, status={status}, "
+                    f"cancel_at_period_end={cancel_at_period_end}, "
+                    f"cancel_at={cancel_at}, is_scheduled={is_scheduled_for_cancellation}"
+                )
+
                 if customer_id:
                     from apps.accounts.models import User
                     user = User.objects.filter(stripe_customer_id=customer_id).first()
+
+                    # stripe_customer_id が未保存の場合、Stripe APIでメールを取得してフォールバック
+                    if not user:
+                        logger.warning(
+                            f"[Webhook] No user found for stripe_customer_id={customer_id}. "
+                            f"Falling back to Stripe customer email lookup."
+                        )
+                        try:
+                            stripe_customer = stripe.Customer.retrieve(customer_id)
+                            customer_email = stripe_customer.get('email')
+                            if customer_email:
+                                user = User.objects.filter(email=customer_email).first()
+                                if user:
+                                    # 見つかったのでstripe_customer_idを補完保存
+                                    user.stripe_customer_id = customer_id
+                                    user.save(update_fields=['stripe_customer_id'])
+                                    logger.info(
+                                        f"[Webhook] Fallback succeeded: user={user.email}, "
+                                        f"stripe_customer_id saved."
+                                    )
+                        except Exception as lookup_error:
+                            logger.error(f"[Webhook] Stripe customer lookup failed: {lookup_error}")
+
                     if user:
                         if event['type'] == 'customer.subscription.deleted' or status in ['canceled', 'unpaid', 'past_due']:
                             user.is_pro = False
                             user.pro_cancel_at_period_end = False
                             user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
-                            logger.info(f"User {user.email} subscription downgraded / deleted.")
-                        elif cancel_at_period_end:
+                            logger.info(f"[Webhook] User {user.email} subscription downgraded / deleted.")
+                        elif is_scheduled_for_cancellation:
                             user.is_pro = True
                             user.pro_cancel_at_period_end = True
                             user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
-                            logger.info(f"User {user.email} subscription scheduled for cancellation.")
+                            logger.info(f"[Webhook] User {user.email} subscription scheduled for cancellation.")
                         elif status in ['active', 'trialing']:
                             user.is_pro = True
                             user.pro_cancel_at_period_end = False
                             user.save(update_fields=['is_pro', 'pro_cancel_at_period_end'])
-                            logger.info(f"User {user.email} subscription active/renewed.")
+                            logger.info(f"[Webhook] User {user.email} subscription active/renewed.")
+                        else:
+                            logger.warning(
+                                f"[Webhook] User {user.email}: no matching condition. "
+                                f"status={status}, cancel_at_period_end={cancel_at_period_end}"
+                            )
+                    else:
+                        logger.error(
+                            f"[Webhook] User not found for customer_id={customer_id} "
+                            f"even after fallback. Skipping update."
+                        )
 
             return Response(status=200)
 
