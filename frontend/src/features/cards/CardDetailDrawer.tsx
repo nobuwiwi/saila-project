@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Trash2, RefreshCw } from 'lucide-react';
+import { X, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cardsApi } from '../../api/cards';
 import { useWorkspaceStore } from '../../store/workspaceStore';
+import { BusinessCardView } from '../../components/BusinessCardView';
 import type { BusinessCard, ParsedData, Workspace } from '../../types';
 
 interface CardDetailDrawerProps {
@@ -17,6 +18,7 @@ export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetai
   const { workspaces } = useWorkspaceStore();
   const [formData, setFormData] = useState<ParsedData>({});
   const [memo, setMemo] = useState('');
+  const [imageOpen, setImageOpen] = useState(false);
 
   useEffect(() => {
     if (card) {
@@ -95,14 +97,29 @@ export function CardDetailDrawer({ card, isOpen, onClose, workspace }: CardDetai
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
-          {/* Card Image */}
-          <div className="bg-gray-50 rounded-lg overflow-hidden border border-[#eeeeee] flex items-center justify-center min-h-[220px]">
-            {card.image ? (
-              <img src={card.image} alt="名刺画像" className="object-contain w-full h-[220px]" />
-            ) : (
-              <span className="text-sm text-gray-400">画像なし</span>
-            )}
+          {/* BusinessCardView （名刺風HTML再現） */}
+          <div>
+            <BusinessCardView card={card} accentColor={workspace?.color} size="full" />
           </div>
+
+          {/* 元の名刺画像を見る（折りたたみ） */}
+          {card.image && (
+            <div className="border border-[#eeeeee] rounded-md overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setImageOpen(prev => !prev)}
+                className="w-full flex items-center justify-between px-3 py-2 text-[12px] text-gray-500 hover:bg-gray-50 transition-colors"
+              >
+                <span>元の名刺画像を見る</span>
+                {imageOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {imageOpen && (
+                <div className="border-t border-[#eeeeee] flex items-center justify-center bg-gray-50 p-3">
+                  <img src={card.image} alt="元名刺画像" className="max-w-full object-contain rounded" />
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ワークスペース移動 */}
           <div className="space-y-1.5">

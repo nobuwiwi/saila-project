@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cardsApi } from '../../api/cards';
 import { CardDetailDrawer } from './CardDetailDrawer';
 import { CardUploadModal } from './CardUploadModal';
+import { BusinessCardView } from '../../components/BusinessCardView';
 import type { Workspace, BusinessCard } from '../../types';
 
 interface OutletContext {
@@ -168,15 +169,9 @@ function AxisSection({
                 onClick={() => onRowClick(card)} 
                 className="p-4 flex gap-3 cursor-pointer hover:bg-[#fcfcff] transition-colors"
               >
-                {/* 画像 */}
+                {/* 名刺カード（mini） */}
                 <div className="shrink-0 pt-1">
-                  {card.thumbnail ? (
-                    <img src={card.thumbnail} alt="thumbnail" className="w-14 h-14 object-cover rounded shadow-sm border border-gray-200" />
-                  ) : (
-                    <div className="w-14 h-14 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
-                      <span className="text-[10px] text-gray-400 text-center leading-tight">No Img</span>
-                    </div>
-                  )}
+                  <BusinessCardView card={card} accentColor={workspace.color} size="mini" />
                 </div>
                 {/* 情報 */}
                 <div className="flex-1 min-w-0 flex flex-col">
@@ -207,7 +202,7 @@ function AxisSection({
             <table className="w-full text-left border-collapse min-w-max">
               <thead className="bg-[#f7f7f8] sticky top-0 z-10 border-b border-[#eeeeee]">
                 <tr>
-                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500 w-16">画像</th>
+                  <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500" style={{ width: 140 }}>名刺</th>
                   <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">会社名</th>
                   <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">氏名</th>
                   <th className="px-4 py-2.5 text-[12px] font-medium text-gray-500">役職</th>
@@ -225,18 +220,16 @@ function AxisSection({
                     className="group hover:bg-[#fcfcff] cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
-                      {card.thumbnail ? (
-                        <div className="relative group/thumb w-12 h-8">
-                          <img src={card.thumbnail} alt="thumbnail" className="w-full h-full object-cover rounded shadow-sm border border-gray-200" />
-                          <div className="hidden group-hover/thumb:block absolute top-[110%] left-[-20%] z-50 p-1 bg-white border border-gray-200 shadow-xl rounded-lg pointer-events-none">
-                            <img src={card.image ?? card.thumbnail} alt="preview" className="w-[300px] max-w-none object-contain rounded-md" />
-                          </div>
+                      <div className="relative group/thumb" style={{ width: 120 }}>
+                        <BusinessCardView card={card} accentColor={workspace.color} size="mini" />
+                        {/* ホバーポップオーバー：フルサイズプレビュー */}
+                        <div
+                          className="hidden group-hover/thumb:block absolute z-50 pointer-events-none"
+                          style={{ top: '110%', left: 0, width: 320, padding: 8, backgroundColor: '#fff', border: '1px solid #e5e5e5', borderRadius: 6, boxShadow: '0 8px 24px rgba(0,0,0,0.12)' }}
+                        >
+                          <BusinessCardView card={card} accentColor={workspace.color} size="full" />
                         </div>
-                      ) : (
-                        <div className="w-12 h-8 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
-                          <span className="text-[10px] text-gray-400">No Img</span>
-                        </div>
-                      )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-[13px] text-gray-900 truncate max-w-[150px]">
                       <EditableCell value={card.parsed_data?.company_name}
