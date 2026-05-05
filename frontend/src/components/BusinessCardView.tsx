@@ -45,7 +45,7 @@ function FilledCard({
 
   if (isMini) {
     return (
-      <div style={miniCardStyle(accentColor)}>
+      <div style={miniCardStyle()}>
         {/* アクセントライン */}
         <div style={{ width: 3, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '2px 0 0 2px', flexShrink: 0 }} />
         <div style={{ flex: 1, padding: '5px 6px', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 1 }}>
@@ -69,7 +69,7 @@ function FilledCard({
 
   // フルサイズ
   return (
-    <div style={fullCardStyle(accentColor)}>
+    <div style={fullCardStyle()}>
       {/* 左アクセントライン */}
       <div style={{ width: 4, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
 
@@ -121,7 +121,7 @@ function FilledCard({
 function SkeletonCard({ accentColor, isMini }: { accentColor: string; isMini: boolean }) {
   if (isMini) {
     return (
-      <div style={miniCardStyle(accentColor)}>
+      <div style={miniCardStyle()}>
         <div style={{ width: 3, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '2px 0 0 2px', flexShrink: 0 }} />
         <div style={{ flex: 1, padding: '5px 6px', display: 'flex', flexDirection: 'column', gap: 3 }}>
           <SkeletonBar width="60%" height={6} />
@@ -133,7 +133,7 @@ function SkeletonCard({ accentColor, isMini }: { accentColor: string; isMini: bo
   }
 
   return (
-    <div style={fullCardStyle(accentColor)}>
+    <div style={fullCardStyle()}>
       <div style={{ width: 4, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
       <div style={{ flex: 1, padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ marginBottom: 12 }}>
@@ -183,7 +183,7 @@ function EmptyCard({
 
   if (isMini) {
     return (
-      <div style={{ ...miniCardStyle(accentColor), alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ ...miniCardStyle(), alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 3, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '2px 0 0 2px', flexShrink: 0 }} />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontSize: 7, color: labelColor }}>{label}</span>
@@ -193,7 +193,7 @@ function EmptyCard({
   }
 
   return (
-    <div style={{ ...fullCardStyle(accentColor), alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ ...fullCardStyle(), alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: 4, backgroundColor: accentColor, alignSelf: 'stretch', borderRadius: '4px 0 0 4px', flexShrink: 0 }} />
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontSize: 13, color: labelColor }}>{label}</span>
@@ -217,7 +217,7 @@ const BASE_CARD_STYLE: React.CSSProperties = {
   position: 'relative',
 };
 
-function miniCardStyle(accentColor: string): React.CSSProperties {
+function miniCardStyle(): React.CSSProperties {
   return {
     ...BASE_CARD_STYLE,
     // 91:55 比率 → 幅120px で高さ≒72px
@@ -226,7 +226,7 @@ function miniCardStyle(accentColor: string): React.CSSProperties {
   };
 }
 
-function fullCardStyle(accentColor: string): React.CSSProperties {
+function fullCardStyle(): React.CSSProperties {
   return {
     ...BASE_CARD_STYLE,
     // 91:55 比率をアスペクト比で維持
